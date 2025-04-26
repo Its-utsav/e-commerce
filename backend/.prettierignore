@@ -1,0 +1,10 @@
+*.env
+/node_modules
+/.vscode
+/dist
+package.json
+package-lock.json
+.pretstierrc
+tsconfig.json
+eslint.config.mjs
+.eslintrc.js
