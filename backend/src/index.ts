@@ -1,13 +1,19 @@
-import express, { Request, Response } from "express";
-const app = express();
+import * as env from "dotenv";
+import app from "./app";
+import connectDB from "./db";
+env.config({
+    path: ".env",
+});
+const PORT = process.env.PORT || 3000;
 
-app.get("/", (req: Request, res: Response) => {
-    return res.json({
-        msg: "LOl",
+connectDB()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(
+                `DB connected and server srated http://localhost:${PORT}`
+            );
+        });
+    })
+    .catch((error) => {
+        console.error("Something gone wrong " + error);
     });
-});
-
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server started on port http://localhost:${PORT}`);
-});
