@@ -11,14 +11,13 @@ app.use(
 app.use(
     express.urlencoded({
         limit: "20kb",
+        extended: true,
     })
 );
 
 // ROUTES
 
-
-
 // GLOBAL ERROR Handling
-app.use(globalErrorHandler)
+app.use(globalErrorHandler);
 
 export default app;

@@ -1,7 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "./ApiError";
 
-const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+const globalErrorHandler = (
+    err: any,
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     const statusCode = err instanceof ApiError ? err.statusCode : 500;
     const message =
         err instanceof ApiError ? err.message : "Internal Server error";
@@ -9,7 +14,6 @@ const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFun
         success: false,
         message,
     });
-}
+};
 
-
-export default globalErrorHandler
+export default globalErrorHandler;

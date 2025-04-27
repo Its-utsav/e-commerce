@@ -6,7 +6,7 @@ const asyncHandler = (requestFunction: RequestHandler) => {
         try {
             await Promise.resolve(requestFunction(req, res, next));
         } catch (error: unknown) {
-            next(error)
+            next(error);
         }
     };
 };
