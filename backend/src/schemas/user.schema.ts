@@ -1,17 +1,14 @@
 import { z } from "zod";
 
-const userZodSchema = z.object({
+export const createUserZodSchema = z.object({
     username: z.string({
         message: "Username must be required",
     }),
     avatarUrl: z.string().optional(),
     email: z.string().email(),
-    password: z.string(),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
     address: z.string().optional(),
-    refreshToken: z.string().jwt().optional(),
     role: z.enum(["ADMIN", "USER", "MERCHANTS"]).optional().default("USER"),
-    createdAt: z.date().default(() => new Date()),
-    updatedAt: z.date().default(() => new Date()),
 });
 
-export type userZodtype = z.infer<typeof userZodSchema>;
+export type userZodtype = z.infer<typeof createUserZodSchema>;
