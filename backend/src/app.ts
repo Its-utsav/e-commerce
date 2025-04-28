@@ -1,5 +1,6 @@
 import express from "express";
 import globalErrorHandler from "./utils/globalError";
+import { PREFIX_URL } from "./constants";
 const app = express();
 
 app.use(
@@ -16,6 +17,10 @@ app.use(
 );
 
 // ROUTES
+import userRoutes from "./routes/user.routes";
+
+// ROUTES uses
+app.use(`${PREFIX_URL}users`, userRoutes);
 
 // GLOBAL ERROR Handling
 app.use(globalErrorHandler);
