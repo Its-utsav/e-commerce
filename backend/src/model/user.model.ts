@@ -20,7 +20,10 @@ interface IUserData {
     updatedAt: Date;
 }
 
-interface UserDocument extends IUserData, Document<Types.ObjectId>, IUserMethods { }
+interface UserDocument
+    extends IUserData,
+        Document<Types.ObjectId>,
+        IUserMethods {}
 
 const userSchema = new Schema<UserDocument, Model<UserDocument>, IUserMethods>(
     {
@@ -100,7 +103,7 @@ userSchema.methods.generateAccessToken = function () {
             }
         );
     } catch (error) {
-        console.log(`Error while generating access token errors \n ${error}`)
+        console.log(`Error while generating access token errors \n ${error}`);
         return undefined;
     }
 };
@@ -121,7 +124,7 @@ userSchema.methods.generateRefreshToken = function () {
             }
         );
     } catch (error) {
-        console.log(`Error while generating refresh token errors \n ${error}`)
+        console.log(`Error while generating refresh token errors \n ${error}`);
         return undefined;
     }
 };
