@@ -27,8 +27,8 @@ interface IUserData extends IAdminData {
 
 interface UserDocument
     extends IUserData,
-    Document<Types.ObjectId>,
-    IUserMethods { }
+        Document<Types.ObjectId>,
+        IUserMethods {}
 
 const userSchema = new Schema<UserDocument, Model<UserDocument>, IUserMethods>(
     {

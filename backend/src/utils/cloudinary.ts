@@ -2,6 +2,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { unlinkSync } from "node:fs";
 import ApiError from "./ApiError";
 
+//  TODO FIXES api key issue
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,

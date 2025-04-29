@@ -12,7 +12,7 @@
 | `/login`        | `POST`   | Login the user                                                                |
 | `/logout`       | `POST`   | Logout the user **(Loggedin user only)**                                      |
 | `/refreshToken` | `POST`   | Refresh the access token **(Loggedin user only)**                             |
-| `/me`           | `GET`    | Get Info of current user                                                      |
+| `/me`           | `GET`    | Get Info of current user **(Loggedin user only)**                             |
 | `/me`           | `PATCH`  | address , avatarUrl can update **(Loggedin user only)**                       |
 | `/me/password`  | `PATCH`  | change password (old password must be true than new password can be accepted) |
 | `/me`           | `DELETE` | Delete the current user **(Loggedin user only)**                              |
