@@ -1,1 +1,1 @@
-export const PREFIX_URL = "/api/v1/";
+export const PREFIX_URL = "/api/v1";

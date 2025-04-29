@@ -20,7 +20,7 @@ app.use(
 import userRoutes from "./routes/user.routes";
 
 // ROUTES uses
-app.use(`${PREFIX_URL}users`, userRoutes);
+app.use(`${PREFIX_URL}/auth`, userRoutes);
 
 // GLOBAL ERROR Handling
 app.use(globalErrorHandler);
