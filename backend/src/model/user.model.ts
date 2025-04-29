@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { Document, Model, model, ObjectId, Schema } from "mongoose";
+import { Document, Model, model, Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import { Types } from "mongoose";
 interface IUserMethods {

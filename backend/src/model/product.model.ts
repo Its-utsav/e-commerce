@@ -1,17 +1,34 @@
-import { Document, model, ObjectId, Schema } from "mongoose";
-import { productType } from "../schemas/product.schema";
+import { Document, Model, model, Schema, Types } from "mongoose";
 
-interface IUser extends Document, productType {
-    _id: ObjectId;
+interface ProductMethods {}
+
+interface ProductData {
+    name: string;
+    imageUrl?: string;
+    description: string;
+    price: number;
+    stock: number;
+    discount: number;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
-interface ProductDocument extends IUser {}
+interface ProductDocument
+    extends ProductData,
+        Document<Types.ObjectId>,
+        ProductMethods {}
 
-const productSchema = new Schema<ProductDocument>(
+const productSchema = new Schema<
+    ProductDocument,
+    Model<ProductDocument>,
+    ProductMethods
+>(
     {
         name: {
             type: String,
             required: true,
+            trim: true,
+            lowercase: true,
         },
         imageUrl: { type: String },
         description: {
@@ -20,12 +37,26 @@ const productSchema = new Schema<ProductDocument>(
             minlength: 5,
             maxlength: 2000,
         },
-        price: { type: Number, required: true, min: 0 },
-        discount: { type: Number, default: 0 },
+        price: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+        stock: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+        discount: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 99,
+        },
     },
     { timestamps: true }
 );
 
-const Product = model("Product", productSchema);
+const Product = model<ProductDocument>("Product", productSchema);
 
 export default Product;

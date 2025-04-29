@@ -1,5 +1,7 @@
 import { model, ObjectId, Schema, Document, Model, Types } from "mongoose";
 
+interface ICartMethods {}
+
 interface ICartProductItem {
     productId: ObjectId;
     quantity: number;
@@ -16,7 +18,11 @@ interface ICartData {
 
 interface ICartDocument extends ICartData, Document<Types.ObjectId> {}
 
-const cartSchema = new Schema<ICartDocument, Model<ICartDocument>>(
+const cartSchema = new Schema<
+    ICartDocument,
+    Model<ICartDocument>,
+    ICartMethods
+>(
     {
         amount: {
             type: Number,
