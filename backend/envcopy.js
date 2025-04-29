@@ -1,5 +1,4 @@
-import { writeFile } from "fs/promises"
-import { open } from 'node:fs/promises';
+import { writeFile, open } from "fs/promises"
 /**
  * 
  * @param {string} line 

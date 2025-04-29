@@ -8,13 +8,18 @@ interface IUserMethods {
     generateRefreshToken(): string | undefined;
 }
 
-interface IUserData {
+interface IAdminData {
+    verifyBy?: Types.ObjectId;
+    verifyAt?: Date;
+}
+
+interface IUserData extends IAdminData {
     username: string;
     avatarUrl?: string;
     email: string;
     password: string;
     address?: string;
-    role: "ADMIN" | "USER" | "MERCHANTS";
+    role: "ADMIN" | "USER" | "MERCHANT";
     refreshToken?: string;
     createdAt: Date;
     updatedAt: Date;
@@ -22,8 +27,8 @@ interface IUserData {
 
 interface UserDocument
     extends IUserData,
-        Document<Types.ObjectId>,
-        IUserMethods {}
+    Document<Types.ObjectId>,
+    IUserMethods { }
 
 const userSchema = new Schema<UserDocument, Model<UserDocument>, IUserMethods>(
     {
@@ -59,7 +64,7 @@ const userSchema = new Schema<UserDocument, Model<UserDocument>, IUserMethods>(
         },
         role: {
             type: String,
-            enum: ["ADMIN", "USER", "MERCHANTS"],
+            enum: ["ADMIN", "USER", "MERCHANT"],
             default: "USER",
         },
     },
