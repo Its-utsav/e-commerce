@@ -11,7 +11,6 @@ import {
     getPublicIdByUrl,
 } from "../utils/cloudinary";
 
-
 export const registerUser = asyncHandler(
     async (req: Request<{}, {}, createUser>, res: Response) => {
         const { username, email, password, role, address, avatarUrl } =
@@ -41,7 +40,7 @@ export const registerUser = asyncHandler(
             $or: [{ username: data.username }, { email: data.email }],
         });
         let findBy = "";
-        console.log("existingUser", existingUser)
+
         if (existingUser) {
             if (existingUser.username === data.username) findBy = "username";
             if (existingUser.email === data.email) findBy = "email";
@@ -50,14 +49,12 @@ export const registerUser = asyncHandler(
 
         let uploadUrl: string;
         let publicId: string | undefined;
-        console.log("file is", req.file);
-        // TODO -> FIX UPLOAD ISSUE
+
         if (req.file) {
             const uploadData = await cloudinaryUpload(req.file?.path);
             if (uploadData) {
-                console.log("file upload", uploadData);
                 uploadUrl = uploadData.secure_url;
-                console.log("upload url", uploadUrl);
+
                 publicId = getPublicIdByUrl(uploadUrl);
             }
         }

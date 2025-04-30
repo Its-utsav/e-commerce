@@ -1,10 +1,11 @@
-import * as env from "dotenv";
+import "dotenv/config";
+// import * as env from "dotenv";
+// // env.config({
+//     path: ".env",
+// });
 import app from "./app";
 import connectDB from "./db";
-env.config({
-    path: ".env",
-});
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 connectDB()
     .then(() => {
