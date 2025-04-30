@@ -24,3 +24,21 @@ export const createUserZodSchema = z.object({
 });
 
 export type createUser = z.infer<typeof createUserZodSchema>;
+
+export const loginUserZodSchema = z.object({
+    email: z
+        .string({
+            required_error: "Email must be required",
+            invalid_type_error: "Email must be string",
+        })
+        .email(),
+    password: z
+        .string({
+            required_error: "Password must be required",
+            invalid_type_error:
+                "Password should be combination for character and numbers",
+        })
+        .min(8, "Password must be at least 8 characters long"),
+});
+
+export type loginUser = z.infer<typeof loginUserZodSchema>;

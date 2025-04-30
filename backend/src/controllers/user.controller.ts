@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import User from "../model/user.model";
-import { createUser, createUserZodSchema } from "../schemas/user.schema";
+import {
+    createUser,
+    createUserZodSchema,
+    loginUser,
+    loginUserZodSchema,
+} from "../schemas/user.schema";
 import ApiError from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import asyncHandler from "../utils/asyncHandler";
@@ -10,8 +15,9 @@ import {
     deleteFromCloudinary,
     getPublicIdByUrl,
 } from "../utils/cloudinary";
+import { options } from "../constants";
 
-export const registerUser = asyncHandler(
+const registerUser = asyncHandler(
     async (req: Request<{}, {}, createUser>, res: Response) => {
         const { username, email, password, role, address, avatarUrl } =
             req.body;
@@ -103,3 +109,89 @@ export const registerUser = asyncHandler(
         }
     }
 );
+
+const generateAccessAndRefreshToken = async (
+    userId: mongoose.Types.ObjectId
+) => {
+    try {
+        const user = await User.findById(userId);
+        if (!user) throw new ApiError(401, "User not found");
+        const refreshToken = user.generateRefreshToken();
+        const accessToken = user.generateAccessToken();
+        user.refreshToken = refreshToken;
+        user.save({ validateBeforeSave: true });
+        return { refreshToken, accessToken };
+    } catch (error) {
+        throw new ApiError(500, "Access and refresh token generation failed");
+    }
+};
+
+const loginUser = asyncHandler(
+    async (req: Request<{}, {}, loginUser>, res: Response) => {
+        const { email, password } = req.body;
+
+        const zodResult = loginUserZodSchema.safeParse({ email, password });
+
+        if (!zodResult.success) {
+            const error = zodResult.error.errors
+                .map((e) => e.message)
+                .join(", ");
+            throw new ApiError(400, error);
+        }
+        const data = zodResult.data;
+        const existsUser = await User.findOne({ email: data.email });
+        if (!existsUser) {
+            throw new ApiError(404, "User does not exists");
+        }
+
+        const isPasswordCorrect = await existsUser.comparePassword(
+            data.password
+        );
+
+        if (!isPasswordCorrect) {
+            throw new ApiError(401, "Unauthorized request , Invalid password");
+        }
+
+        // genrate access and refersh token
+
+        const { refreshToken, accessToken } =
+            await generateAccessAndRefreshToken(existsUser._id);
+
+        // save into the cookie
+        const user = existsUser.toObject();
+        const userRes = {
+            username: user.username,
+            avatarUrl: user.avatarUrl,
+            email: user.email,
+            address: user.address,
+            role: user.role,
+        };
+        return res
+            .status(200)
+            .cookie("refreshToken", refreshToken, options)
+            .cookie("accessToken", accessToken, options)
+            .json(new ApiResponse(200, userRes, "User loggedin successfully"));
+    }
+);
+
+const logoutUser = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    await User.findByIdAndUpdate(
+        userId,
+        {
+            $set: {
+                refreshToken: 1,
+            },
+        },
+        {
+            new: true,
+        }
+    );
+    return res
+        .status(200)
+        .clearCookie("refreshToken", options)
+        .clearCookie("accessToken", options)
+        .json(new ApiResponse(200, {}, "User log out successfully"));
+});
+
+export { registerUser, loginUser, logoutUser };

@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
-import { Document, Model, model, Schema } from "mongoose";
-import jwt from "jsonwebtoken";
-import { Types } from "mongoose";
+import jwt, { SignOptions } from "jsonwebtoken";
+import { Document, Model, model, Schema, Types } from "mongoose";
 interface IUserMethods {
     comparePassword(password: string): Promise<boolean>;
     generateAccessToken(): string | undefined;
@@ -97,24 +96,38 @@ userSchema.methods.comparePassword = async function (
 // Genrate Access Token(short term) and refresh token(long term)
 userSchema.methods.generateAccessToken = function () {
     try {
+        if (!process.env.ACCESSTOKEN_KEY) {
+            throw new Error("Access key not provided");
+        }
+
+        const key = process.env.ACCESSTOKEN_KEY;
+        const expiresIn = (process.env.ACCESSTOKEN_EXP ||
+            "1d") as SignOptions["expiresIn"];
+
         return jwt.sign(
             {
                 _id: this._id,
                 username: this.username,
             },
-            process.env.ACCESSTOKEN_KEY as string,
+            key,
             {
-                expiresIn: parseInt(process.env.ACCESSTOKEN_EXP!, 10) || "1D",
+                expiresIn: expiresIn,
             }
         );
     } catch (error) {
-        console.log(`Error while generating access token errors \n ${error}`);
+        console.error(`Error while generating access token errors \n ${error}`);
         return undefined;
     }
 };
 
 userSchema.methods.generateRefreshToken = function () {
     try {
+        if (!process.env.REFERESHTOKEN_KEY) {
+            throw new Error("Refresh key not provided");
+        }
+        const key = process.env.REFERESHTOKEN_KEY as string;
+        const expiresIn = (process.env.REFERESHTOKEN_EXP ||
+            "10d") as SignOptions["expiresIn"];
         return jwt.sign(
             {
                 _id: this._id,
@@ -122,14 +135,15 @@ userSchema.methods.generateRefreshToken = function () {
                 email: this.email,
                 role: this.role,
             },
-            process.env.REFERESHTOKEN_KEY as string,
+            key,
             {
-                expiresIn:
-                    parseInt(process.env.REFERESHTOKEN_EXP!, 10) || "10D",
+                expiresIn: expiresIn,
             }
         );
     } catch (error) {
-        console.log(`Error while generating refresh token errors \n ${error}`);
+        console.error(
+            `Error while generating refresh token errors \n ${error}`
+        );
         return undefined;
     }
 };
