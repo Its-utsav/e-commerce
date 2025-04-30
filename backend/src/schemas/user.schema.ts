@@ -42,3 +42,11 @@ export const loginUserZodSchema = z.object({
 });
 
 export type loginUser = z.infer<typeof loginUserZodSchema>;
+
+export const updateUserZodSchema = z.object({
+    avatarUrl: z.string().optional(),
+    address: z.string({
+        invalid_type_error: "address must contains character and numbers"
+    }).optional(),
+})
+export type updatedUser = z.infer<typeof updateUserZodSchema>;

@@ -6,17 +6,17 @@
 
 - Base Url - `/api/v1/auth`
 
-| Route           | Method   | Description                                                                   |
-| --------------- | -------- | ----------------------------------------------------------------------------- |
-| `/register`     | `POST`   | Register the user                                                             |
-| `/login`        | `POST`   | Login the user                                                                |
-| `/logout`       | `POST`   | Logout the user **(Loggedin user only)**                                      |
-| `/refreshToken` | `POST`   | Refresh the access token **(Loggedin user only)**                             |
-| `/me`           | `GET`    | Get Info of current user **(Loggedin user only)**                             |
-| `/me`           | `PATCH`  | address , avatarUrl can update **(Loggedin user only)**                       |
-| `/me/password`  | `PATCH`  | change password (old password must be true than new password can be accepted) |
-| `/me`           | `DELETE` | Delete the current user **(Loggedin user only)**                              |
-| `/orderHistory` | `GET`    | Get the order hitory **(Loggedin user only)**                                 |
+| Route            | Method   | Description                                                                   |
+| ---------------- | -------- | ----------------------------------------------------------------------------- |
+| `/register`      | `POST`   | Register the user                                                             |
+| `/login`         | `POST`   | Login the user                                                                |
+| `/logout`        | `POST`   | Logout the user **(Loggedin user only)**                                      |
+| `/refresh-token` | `POST`   | Refresh the access token **(Loggedin user only)**                             |
+| `/me`            | `GET`    | Get Info of current user **(Loggedin user only)**                             |
+| `/me`            | `PATCH`  | address , avatarUrl can update **(Loggedin user only)**                       |
+| `/me/password`   | `PATCH`  | change password (old password must be true than new password can be accepted) |
+| `/me`            | `DELETE` | Delete the current user **(Loggedin user only)**                              |
+| `/orderHistory`  | `GET`    | Get the order hitory **(Loggedin user only)**                                 |
 
 
 ### Product

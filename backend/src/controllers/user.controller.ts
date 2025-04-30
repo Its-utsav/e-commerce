@@ -6,6 +6,8 @@ import {
     createUserZodSchema,
     loginUser,
     loginUserZodSchema,
+    updatedUser,
+    updateUserZodSchema,
 } from "../schemas/user.schema";
 import ApiError from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
@@ -16,6 +18,7 @@ import {
     getPublicIdByUrl,
 } from "../utils/cloudinary";
 import { options } from "../constants";
+import jwt from "jsonwebtoken";
 
 const registerUser = asyncHandler(
     async (req: Request<{}, {}, createUser>, res: Response) => {
@@ -119,7 +122,7 @@ const generateAccessAndRefreshToken = async (
         const refreshToken = user.generateRefreshToken();
         const accessToken = user.generateAccessToken();
         user.refreshToken = refreshToken;
-        user.save({ validateBeforeSave: true });
+        user.save({ validateBeforeSave: false });
         return { refreshToken, accessToken };
     } catch (error) {
         throw new ApiError(500, "Access and refresh token generation failed");
@@ -176,6 +179,9 @@ const loginUser = asyncHandler(
 
 const logoutUser = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
+    if (!userId) {
+        throw new ApiError(401, "User Id not provided");
+    }
     await User.findByIdAndUpdate(
         userId,
         {
@@ -194,4 +200,168 @@ const logoutUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "User log out successfully"));
 });
 
-export { registerUser, loginUser, logoutUser };
+const refreshAccessTokenViaRefreshToken = asyncHandler(async (req, res) => {
+    try {
+        // get incoming refreshtoken can be by cookie , in header
+        // verfity that is token creared by us or not -> if no not allowed
+        const incomingRefreshToken =
+            req.headers.authorization?.replace("Bearer ", "") ||
+            req.cookies?.refreshToken ||
+            req.body?.refreshToken;
+
+        if (!incomingRefreshToken) {
+            throw new ApiError(
+                401,
+                "Unauthorized request , Refresh token missing"
+            );
+        }
+
+        const decodeInfo = jwt.verify(
+            incomingRefreshToken,
+            process.env.REFERESHTOKEN_KEY as string
+        );
+
+        if (!decodeInfo || typeof decodeInfo === "string") {
+            throw new ApiError(
+                401,
+                "Unauthorized request , Invalaid Refresh token"
+            );
+        }
+        const user = await User.findById(decodeInfo._id);
+        if (!user) throw new ApiError(404, "User not found");
+
+        if (incomingRefreshToken !== user.refreshToken) {
+            throw new ApiError(401, "Refresh token is used Or Expiers");
+        }
+        const { accessToken, refreshToken } =
+            await generateAccessAndRefreshToken(user._id);
+        const updatedUser = await User.findByIdAndUpdate(user._id, {
+            refreshToken,
+        })
+            .select("-password -refreshToken")
+            .lean();
+
+        return res
+            .status(200)
+            .cookie("refreshToken", refreshToken, options)
+            .cookie("accessToken", accessToken, options)
+            .json(
+                new ApiResponse(
+                    200,
+                    updatedUser,
+                    "Refresh token successfully refresh"
+                )
+            );
+    } catch (error) {
+        console.log(error);
+        throw new ApiError(401, "Invalaid Refresh token");
+    }
+});
+
+const getUserInfo = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    if (!userId) {
+        throw new ApiError(401, "User Id not provided");
+    }
+    const user = await User.findById(userId)
+        .select("-password -refreshToken")
+        .lean();
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user, "User data fetched successfully"));
+});
+
+// TODO - DELETE ORDERS , CARTS , PRODUCTS
+
+const deleteUser = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    if (!userId) {
+        throw new ApiError(401, "User Id not provided");
+    }
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "User deleted successfully"));
+});
+
+const updateUser = asyncHandler(
+    async (req: Request<{}, {}, updatedUser>, res: Response) => {
+        const { address, avatarUrl } = req.body;
+
+        const zodResult = updateUserZodSchema.safeParse({
+            address,
+            avatarUrl,
+        });
+
+        if (!zodResult.success) {
+            const error = zodResult.error.errors
+                .map((e) => e.message)
+                .join(", ");
+            throw new ApiError(400, error);
+        }
+        const data = zodResult.data;
+        const userId = req.user?._id;
+        if (!userId) {
+            throw new ApiError(401, "User Id not provided");
+        }
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+        let updateStatus = false;
+
+        // Previous their is no address OR Previous address is not same as current one
+        if (
+            (data.address !== undefined && data.address !== user.address) ||
+            (user.address === undefined && data.address !== undefined)
+        ) {
+            user.address = data.address;
+            updateStatus = true;
+        }
+
+        // avatar got
+        let uploadUrl;
+        if (req.file) {
+            const uploadData = await cloudinaryUpload(req.file?.path);
+            if (uploadData) {
+                uploadUrl = uploadData.secure_url;
+                user.avatarUrl = uploadUrl;
+                updateStatus = true;
+            } else {
+                throw new ApiError(500, "Avatar upload failed");
+            }
+        }
+
+        if (!updateStatus) {
+            return res.status(200).json(new ApiResponse(200, {}, "Nothing to update"))
+        }
+        const updatedData = await user.save({ validateBeforeSave: true });
+        const userRes = {
+            username: updatedData.username,
+            email: updatedData.email,
+            avatarUrl: updatedData.avatarUrl,
+            address: updatedData.address,
+            role: updatedData.role,
+        }
+
+        return res.status(200).json(
+            new ApiResponse(200, userRes, "User updated successfully")
+        )
+    }
+);
+
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshAccessTokenViaRefreshToken,
+    getUserInfo,
+    deleteUser,
+    updateUser,
+};
