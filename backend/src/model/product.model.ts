@@ -1,9 +1,9 @@
-import { Document, Model, model, Schema, Types } from "mongoose";
+import mongoose, { Document, Model, model, Schema, Types } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-interface ProductMethods {}
+interface ProductMethods { }
 
-interface ProductData {
+export interface ProductData {
     name: string;
     imageUrl?: string;
     description: string;
@@ -14,10 +14,14 @@ interface ProductData {
     updatedAt: Date;
 }
 
-interface ProductDocument
+export interface ProductDocument
     extends ProductData,
-        Document<Types.ObjectId>,
-        ProductMethods {}
+    Document<Types.ObjectId>,
+    ProductMethods { }
+
+export interface ProductModel extends Model<ProductDocument, {}, ProductMethods> {
+    aggregatePaginate: typeof mongooseAggregatePaginate
+}
 
 const productSchema = new Schema<
     ProductDocument,
@@ -59,6 +63,8 @@ const productSchema = new Schema<
 );
 
 productSchema.plugin(mongooseAggregatePaginate);
-const Product = model<ProductDocument>("Product", productSchema);
+const Product = model<ProductDocument, ProductModel>("Product", productSchema);
+
+export type ProductFilter = mongoose.FilterQuery<ProductData>
 
 export default Product;

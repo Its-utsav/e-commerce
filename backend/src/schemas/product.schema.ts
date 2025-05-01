@@ -44,3 +44,76 @@ export const productZodSchema = z.object({
 });
 
 export type productType = z.infer<typeof productZodSchema>;
+
+export const productFindQueryZodSchema = z
+    .object({
+        search: z.string().optional(),
+        minPrice: z.preprocess(
+            (val) =>
+                val === null || val === undefined || val === ""
+                    ? undefined
+                    : Number(val),
+
+            z
+                .number()
+                .min(0, {
+                    message: "Minimum price can not be negiatve number. ",
+                })
+                .optional()
+        ),
+        maxPrice: z.preprocess(
+            (val) =>
+                val === null || val === undefined || val === ""
+                    ? undefined
+                    : Number(val),
+            z
+                .number()
+                .min(0, {
+                    message: "Maximum price can not be negiatve number. ",
+                })
+                .optional()
+        ),
+        page: z.preprocess(
+            (val) =>
+                val === null || val === undefined || val === ""
+                    ? 1
+                    : Number(val),
+            z
+                .number()
+                .int("Page must be an integer")
+                .min(1, "Page must be at least 1")
+                .default(1)
+        ),
+        limit: z.preprocess(
+            (val) =>
+                val === null || val === undefined || val === ""
+                    ? 10
+                    : Number(val),
+            z
+                .number()
+                .int("Limit must be an integer")
+                .min(1, "Limit must be at least 1")
+                .max(100, "Limit cannot exceed 100")
+                .default(10)
+        ),
+        sortBy: z.string().optional().default("createdAt:desc"),
+    })
+    .refine(
+        (data) => {
+            // max price should be greater
+            if (
+                data.maxPrice !== undefined &&
+                data.minPrice !== undefined &&
+                data.maxPrice < data.minPrice
+            ) {
+                return false;
+            }
+
+            return true;
+        },
+        {
+            message: "Maximum price cannot be less than minimum price",
+            path: ["maxPrice"],
+        }
+    );
+export type productFindQuery = z.infer<typeof productFindQueryZodSchema>;
