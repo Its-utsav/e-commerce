@@ -49,4 +49,16 @@ export const updateUserZodSchema = z.object({
         invalid_type_error: "address must contains character and numbers"
     }).optional(),
 })
+
 export type updatedUser = z.infer<typeof updateUserZodSchema>;
+
+export const updatePasswordZodSchema = z.object({
+    oldPassword: z.string({
+        required_error: "Old password is required",
+    }),
+    newPassword: z.string({
+        required_error: "Old password is required",
+    })
+})
+
+export type updatePassword = z.infer<typeof updatePasswordZodSchema>
