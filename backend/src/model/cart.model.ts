@@ -1,5 +1,5 @@
 import { model, ObjectId, Schema, Document, Model, Types } from "mongoose";
-
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 interface ICartMethods {}
 
 interface ICartProductItem {
@@ -46,6 +46,6 @@ const cartSchema = new Schema<
         timestamps: true,
     }
 );
-
+cartSchema.plugin(mongooseAggregatePaginate);
 const Cart = model("Cart", cartSchema);
 export default Cart;

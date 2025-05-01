@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema, Types } from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 interface ProductMethods {}
 
@@ -57,6 +58,7 @@ const productSchema = new Schema<
     { timestamps: true }
 );
 
+productSchema.plugin(mongooseAggregatePaginate);
 const Product = model<ProductDocument>("Product", productSchema);
 
 export default Product;

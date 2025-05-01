@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { Document, Model, model, Schema, Types } from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+("mongoose-aggregate-paginate-v2");
 interface IUserMethods {
     comparePassword(password: string): Promise<boolean>;
     generateAccessToken(): string | undefined;
@@ -147,7 +149,7 @@ userSchema.methods.generateRefreshToken = function () {
         return undefined;
     }
 };
-
+userSchema.plugin(mongooseAggregatePaginate);
 const User = model("User", userSchema);
 
 export default User;

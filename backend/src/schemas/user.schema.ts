@@ -45,10 +45,12 @@ export type loginUser = z.infer<typeof loginUserZodSchema>;
 
 export const updateUserZodSchema = z.object({
     avatarUrl: z.string().optional(),
-    address: z.string({
-        invalid_type_error: "address must contains character and numbers"
-    }).optional(),
-})
+    address: z
+        .string({
+            invalid_type_error: "address must contains character and numbers",
+        })
+        .optional(),
+});
 
 export type updatedUser = z.infer<typeof updateUserZodSchema>;
 
@@ -58,7 +60,7 @@ export const updatePasswordZodSchema = z.object({
     }),
     newPassword: z.string({
         required_error: "Old password is required",
-    })
-})
+    }),
+});
 
-export type updatePassword = z.infer<typeof updatePasswordZodSchema>
+export type updatePassword = z.infer<typeof updatePasswordZodSchema>;

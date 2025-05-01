@@ -19,9 +19,15 @@ router.route("/register").post(upload.single("avatar"), registerUser);
 router.route("/login").post(formData, loginUser);
 router.use(verifyUser);
 router.route("/logout").post(logoutUser);
-router.route("/refresh-token").post(formData, refreshAccessTokenViaRefreshToken);
+router
+    .route("/refresh-token")
+    .post(formData, refreshAccessTokenViaRefreshToken);
 
-router.route("/me").get(getUserInfo).patch(upload.single("avatar"), updateUser).delete(deleteUser);
+router
+    .route("/me")
+    .get(getUserInfo)
+    .patch(upload.single("avatar"), updateUser)
+    .delete(deleteUser);
 router.route("/me/password").post(changePassword);
 
 export default router;

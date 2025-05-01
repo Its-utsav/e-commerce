@@ -341,7 +341,9 @@ const updateUser = asyncHandler(
         }
 
         if (!updateStatus) {
-            return res.status(200).json(new ApiResponse(200, {}, "Nothing to update"))
+            return res
+                .status(200)
+                .json(new ApiResponse(200, {}, "Nothing to update"));
         }
         const updatedData = await user.save({ validateBeforeSave: true });
         const userRes = {
@@ -350,57 +352,68 @@ const updateUser = asyncHandler(
             avatarUrl: updatedData.avatarUrl,
             address: updatedData.address,
             role: updatedData.role,
-        }
+        };
 
-        return res.status(200).json(
-            new ApiResponse(200, userRes, "User updated successfully")
-        )
+        return res
+            .status(200)
+            .json(new ApiResponse(200, userRes, "User updated successfully"));
     }
 );
 
-const changePassword = asyncHandler(async (req: Request<{}, {}, updatePassword>, res) => {
-    // old password (from DB) == old password  (user)
-    // update password
-    const userId = req.user?._id;
-    if (!userId) {
-        throw new ApiError(401, "User Id not provided");
+const changePassword = asyncHandler(
+    async (req: Request<{}, {}, updatePassword>, res) => {
+        // old password (from DB) == old password  (user)
+        // update password
+        const userId = req.user?._id;
+        if (!userId) {
+            throw new ApiError(401, "User Id not provided");
+        }
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+
+        const { oldPassword, newPassword } = req.body;
+        const zodResult = updatePasswordZodSchema.safeParse({
+            oldPassword,
+            newPassword,
+        });
+
+        if (!zodResult.success) {
+            const error = zodResult.error.errors
+                .map((e) => e.message)
+                .join(", ");
+            throw new ApiError(400, error);
+        }
+        const data = zodResult.data;
+
+        const oldPasswordCheckRes = await user.comparePassword(
+            data.oldPassword
+        );
+
+        if (!oldPasswordCheckRes) {
+            throw new ApiError(
+                401,
+                "Unauthorized request , Invalid old password"
+            );
+        }
+
+        const isNewPasswordSame = await user.comparePassword(data.newPassword);
+
+        if (isNewPasswordSame) {
+            throw new ApiError(400, "New password is same as old password");
+        }
+
+        user.password = newPassword;
+        await user.save({ validateBeforeSave: false });
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, {}, "User password change successfully")
+            );
     }
-    const user = await User.findById(userId);
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
-
-    const { oldPassword, newPassword } = req.body;
-    const zodResult = updatePasswordZodSchema.safeParse({
-        oldPassword, newPassword
-    })
-
-    if (!zodResult.success) {
-        const error = zodResult.error.errors.map((e) => e.message).join(", ")
-        throw new ApiError(400, error);
-    }
-    const data = zodResult.data;
-
-    const oldPasswordCheckRes = await user.comparePassword(data.oldPassword);
-
-    if (!oldPasswordCheckRes) {
-        throw new ApiError(401, "Unauthorized request , Invalid old password");
-    }
-
-    const isNewPasswordSame = await user.comparePassword(data.newPassword);
-
-    if (isNewPasswordSame) {
-        throw new ApiError(400, "New password is same as old password");
-    }
-
-    user.password = newPassword;
-    await user.save({ validateBeforeSave: false });
-
-
-    return res.status(200).json(
-        new ApiResponse(200, {}, "User password change successfully")
-    )
-})
+);
 
 // TODO -> GET THE ORDER HISTORY OF CURRENT USER
 
@@ -412,5 +425,5 @@ export {
     getUserInfo,
     deleteUser,
     updateUser,
-    changePassword
+    changePassword,
 };
