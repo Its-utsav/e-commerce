@@ -1,3 +1,4 @@
+import { isValidObjectId } from "mongoose";
 import { z } from "zod";
 
 export const productZodSchema = z.object({
@@ -117,3 +118,24 @@ export const productFindQueryZodSchema = z
         }
     );
 export type productFindQuery = z.infer<typeof productFindQueryZodSchema>;
+
+export const searchProductByIdZodSchema = z
+    .object({
+        id: z.string({
+            required_error: "Product id is required",
+        }),
+    })
+    .refine(
+        (data) => {
+            if (!isValidObjectId(data.id)) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: "Invalid Product Id",
+            path: ["id"],
+        }
+    );
+
+export type searchProductById = z.infer<typeof searchProductByIdZodSchema>;

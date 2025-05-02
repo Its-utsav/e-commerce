@@ -5,6 +5,7 @@ interface ProductMethods { }
 
 export interface ProductData {
     name: string;
+    sellerId: Types.ObjectId;
     imageUrl?: string;
     description: string;
     price: number;
@@ -19,8 +20,9 @@ export interface ProductDocument
     Document<Types.ObjectId>,
     ProductMethods { }
 
-export interface ProductModel extends Model<ProductDocument, {}, ProductMethods> {
-    aggregatePaginate: typeof mongooseAggregatePaginate
+export interface ProductModel
+    extends Model<ProductDocument, {}, ProductMethods> {
+    aggregatePaginate: typeof mongooseAggregatePaginate;
 }
 
 const productSchema = new Schema<
@@ -34,6 +36,12 @@ const productSchema = new Schema<
             required: true,
             trim: true,
             lowercase: true,
+        },
+        sellerId: {
+            type: Schema.Types.ObjectId,
+            ref: "Users",
+            index: true,
+            required: true,
         },
         imageUrl: { type: String },
         description: {
@@ -65,6 +73,6 @@ const productSchema = new Schema<
 productSchema.plugin(mongooseAggregatePaginate);
 const Product = model<ProductDocument, ProductModel>("Product", productSchema);
 
-export type ProductFilter = mongoose.FilterQuery<ProductData>
+export type ProductFilter = mongoose.FilterQuery<ProductData>;
 
 export default Product;
