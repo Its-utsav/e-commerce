@@ -6,11 +6,13 @@ interface ProductMethods { }
 export interface ProductData {
     name: string;
     sellerId: Types.ObjectId;
-    imageUrl?: string;
+    imageUrls?: string[];
     description: string;
-    price: number;
+    originalPrice: number;
+    finalPrice: number; // i will calculate price based on discount in percentage
     stock: number;
-    discount: number;
+    discountInPercentage: number;
+    discountInPrice: number; // i will calculate based on discount in percentage
     createdAt: Date;
     updatedAt: Date;
 }
@@ -43,16 +45,20 @@ const productSchema = new Schema<
             index: true,
             required: true,
         },
-        imageUrl: { type: String },
+        imageUrls: [{ type: String }],
         description: {
             type: String,
             required: true,
             minlength: 5,
             maxlength: 2000,
         },
-        price: {
+        originalPrice: {
             type: Number,
             required: true,
+            min: 0,
+        },
+        finalPrice: {
+            type: Number,
             min: 0,
         },
         stock: {
@@ -60,17 +66,36 @@ const productSchema = new Schema<
             required: true,
             min: 0,
         },
-        discount: {
+        discountInPercentage: {
             type: Number,
             default: 0,
             min: 0,
             max: 99,
+        },
+        discountInPrice: {
+            type: Number,
+            min: 0,
         },
     },
     { timestamps: true }
 );
 
 productSchema.plugin(mongooseAggregatePaginate);
+
+productSchema.pre("save", function (next) {
+    if (
+        this.discountInPercentage === 0 ||
+        !this.isModified("discountInPercentage")
+    ) {
+        this.finalPrice = this.originalPrice;
+        next();
+    }
+    this.discountInPrice =
+        (Number(this.originalPrice) * Number(this.discountInPercentage)) / 100;
+    this.finalPrice = this.originalPrice - this.discountInPrice;
+
+    next();
+});
 const Product = model<ProductDocument, ProductModel>("Product", productSchema);
 
 export type ProductFilter = mongoose.FilterQuery<ProductData>;

@@ -31,6 +31,16 @@ const getAllProducts = asyncHandler(async (req: Request, res: Response) => {
     // --------- FILTERING ---------
     const match: { [key: string]: any } = {}; // keys are string but values can be anything
 
+    // F0 --------- RE-USE for merchant --------
+
+    if (
+        req.user &&
+        req.user.role === "MERCHANT" &&
+        req.baseUrl.includes("/merchant")
+    ) {
+        match.sellerId = req.user._id;
+    }
+
     // F1 ---- Based on search ----
     // (Might be user want to search by product name or have some little info about product description) query
     if (search) {
@@ -155,7 +165,18 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
                 ],
             },
         },
+        {
+            $unwind: "$sellerInfo",
+        },
     ]);
+
+    // ONLY for merchant ---------
+    /**
+     * @todo Complete this 
+     */
+    if (req.user?.role === "MERCHANT" && req.baseUrl.includes("/merchant")) {
+
+    }
 
     if (!product) {
         throw new ApiError(404, "Product not found");
@@ -164,7 +185,11 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
     return res
         .status(200)
         .json(
-            new ApiResponse(200, product, "Product Data fetched data successfully")
+            new ApiResponse(
+                200,
+                product,
+                "Product Data fetched data successfully"
+            )
         );
 });
 

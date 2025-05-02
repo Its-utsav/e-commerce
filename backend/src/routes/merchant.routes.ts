@@ -1,0 +1,35 @@
+import { Router } from "express";
+import { verifyUser } from "../middleware/auth.middleware";
+import merchantOnly from "../middleware/merchant.middleware";
+import {
+    createNewProduct,
+    updateProductDetails,
+    deleteProduct,
+    getMerchantAllOrdersDetails,
+    getMerchantOrdersDetails,
+    updateOrderStatus,
+} from "../controllers/merchant.controller";
+import { getUserInfo, updateUser } from "../controllers/user.controller";
+import { upload } from "../middleware/multer.middleware";
+import { getAllProducts, getInfoOfProduct } from "../controllers/product.controller";
+
+const router = Router();
+
+router.use(verifyUser, merchantOnly);
+router.route("/me").get(getUserInfo).post(upload.single("avatar"), updateUser);
+
+router
+    .route("/products")
+    .post(upload.array("productImg", 5), createNewProduct)
+    .get(getAllProducts);
+router
+    .route("/products/:productId")
+    .get(getInfoOfProduct)
+    .patch(updateProductDetails)
+    .delete(deleteProduct);
+
+router.route("/orders").get(getMerchantAllOrdersDetails);
+router.route("/orders/:orderId").get(getMerchantOrdersDetails);
+router.route("/orders/status/:orderId").get(updateOrderStatus);
+
+export default router;

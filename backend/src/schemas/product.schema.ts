@@ -1,15 +1,16 @@
 import { isValidObjectId } from "mongoose";
 import { z } from "zod";
 
-export const productZodSchema = z.object({
-    _id: z.string({
-        required_error: "Product Id is required",
-        invalid_type_error: "Product Id must be string",
-    }),
+export const createProductZodSchema = z.object({
     name: z.string({
         message: "Product name is required",
     }),
-    imageUrl: z.string().optional(),
+    imageUrls: z
+        .array(z.string())
+        .max(5, {
+            message: "You can't upload more than 5 photos",
+        })
+        .optional(),
     description: z
         .string()
         .min(5, "Product description must have minimum 5 characters")
@@ -32,19 +33,12 @@ export const productZodSchema = z.object({
             invalid_type_error: "Product discound must be a number",
         })
         .min(0, { message: "Product discound can not be negative" })
+        .max(100, { message: "Product discound can not be more than 100" })
         .optional()
         .default(0),
-    createdAt: z.date({
-        required_error: "Creation date is required",
-        invalid_type_error: "Creation date must be a Date object",
-    }),
-    updatedAt: z.date({
-        required_error: "Update date is required",
-        invalid_type_error: "Update date must be a Date object",
-    }),
 });
 
-export type productType = z.infer<typeof productZodSchema>;
+export type createProductType = z.infer<typeof createProductZodSchema>;
 
 export const productFindQueryZodSchema = z
     .object({
@@ -139,3 +133,48 @@ export const searchProductByIdZodSchema = z
     );
 
 export type searchProductById = z.infer<typeof searchProductByIdZodSchema>;
+
+export const updateProductDetailsZodSchema = z.object({
+    name: z
+        .string({
+            message: "Product name is required",
+        })
+        .optional(),
+    imageUrls: z
+        .array(z.string())
+        .max(5, {
+            message: "You can't upload more than 5 photos",
+        })
+        .optional(),
+    description: z
+        .string()
+        .min(5, "Product description must have minimum 5 characters")
+        .max(2000, "Product description can have maximum 2000 characters")
+        .optional(),
+    price: z
+        .number({
+            required_error: "Product price is required",
+            invalid_type_error: "Product price must be a number",
+        })
+        .min(0, { message: "Product price can not be less than zero (0)." })
+        .optional(),
+    stock: z
+        .number({
+            required_error: "Product stock is required",
+            invalid_type_error: "Product stock must be a number",
+        })
+        .int({ message: "Product stock must be an integer" })
+        .min(0, { message: "Product stock can not be less than zero (0)." })
+        .optional(),
+    discount: z
+        .number({
+            invalid_type_error: "Product discound must be a number",
+        })
+        .min(0, { message: "Product discound can not be negative" })
+        .max(100, { message: "Product discound can not be more than 100" })
+        .default(0)
+        .optional(),
+});
+export type updateProductDetails = z.infer<
+    typeof updateProductDetailsZodSchema
+>;
