@@ -12,6 +12,8 @@ export const getPublicIdByUrl = (url: string) =>
     url.split("/").pop()?.split(".")[0];
 
 export const deleteFromLocal = (filePath: string) => unlinkSync(filePath);
+export const deleteManyFromLocal = (filePaths: string[]) =>
+    filePaths.forEach((file: string) => deleteFromLocal(file));
 
 // console.log(cloudinary.config());
 
@@ -26,6 +28,23 @@ export const cloudinaryUpload = async (localPath: string) => {
     } catch (error) {
         console.log("cloudinary file uplaod failed", error);
         deleteFromLocal(localPath);
+        return null;
+    }
+};
+
+export const cloudinaryUploadMany = async (localPaths: string[]) => {
+    try {
+        const uploadHelper = localPaths.map((localPath: string) => {
+            return cloudinary.uploader.upload(localPath, {
+                resource_type: "auto",
+            });
+        });
+        const uploadResult = await Promise.all(uploadHelper);
+        deleteManyFromLocal(localPaths);
+        return uploadResult.map((res) => res.secure_url);
+    } catch (error) {
+        console.log("Muliple cloudinary upload failed", error);
+        deleteManyFromLocal(localPaths);
         return null;
     }
 };
