@@ -37,7 +37,19 @@ const verifyUser = asyncHandler(async (req, res, next) => {
         }
         const user = await User.findById(decodeInfo._id);
         if (!user) throw new ApiError(404, "User not found");
-
+        /**
+         * {
+        _id: 
+        username: 
+         email: 
+         password: 
+         role: 
+         createdAt: 
+         updatedAt: 
+         __v: 0,
+         refreshToken: 
+        }   
+         */
         req.user = user;
         next();
     } catch (error) {
