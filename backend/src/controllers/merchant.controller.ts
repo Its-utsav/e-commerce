@@ -15,9 +15,13 @@ import {
     getPublicIdByUrl,
 } from "../utils/cloudinary";
 import Product from "../model/product.model";
-import mongoose from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import Cart from "../model/cart.model";
 import Order from "../model/order.model";
+import {
+    updateOrderStatusType,
+    updateOrderStatusZodSchema,
+} from "../schemas/order.schema";
 
 const createNewProduct = asyncHandler(
     async (req: Request<{}, {}, createProductType>, res: Response) => {
@@ -224,18 +228,112 @@ const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
     }
 });
 
-
-// TODO COMPLETE BELOW HANDLERS
 const getMerchantAllOrdersDetails = asyncHandler(
-    async (req: Request, res: Response) => { }
+    async (req: Request, res: Response) => {
+        // May be we can use pagination -> for better query
+        // find the all order whose seller is current merchant
+        const orders = await Order.find({
+            products: {
+                $elemMatch: {
+                    _id: req.user?._id,
+                },
+            },
+        });
+
+        if (!orders || orders.length === 0) {
+            throw new ApiError(404, "No orders found");
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, orders, "All order fetched succesfully")
+            );
+    }
 );
 
 const getMerchantOrdersDetails = asyncHandler(
-    async (req: Request, res: Response) => { }
+    async (req: Request, res: Response) => {
+        if (!isValidObjectId(req.params.orderId)) {
+            throw new ApiError(400, "Invalid order id");
+        }
+        const orderId = req.params.orderId;
+        const order = await Order.findById(orderId);
+        if (!order) {
+            throw new ApiError(404, "Unable to find order");
+        }
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    order,
+                    "Order details fetched successfully"
+                )
+            );
+    }
 );
 
 const updateOrderStatus = asyncHandler(
-    async (req: Request, res: Response) => { }
+    async (req: Request<any, {}, updateOrderStatusType>, res: Response) => {
+        const zodResult = updateOrderStatusZodSchema.safeParse(req.body);
+
+        if (!zodResult.success) {
+            const error = zodResult.error.errors
+                .map((e) => e.message)
+                .join(", ");
+            throw new ApiError(400, error);
+        }
+        if (!isValidObjectId(req.params.orderId)) {
+            throw new ApiError(400, "Invalid order id");
+        }
+        const orderId = req.params.orderId;
+        // find the order -> whose seller is current merchant
+        // -> update in proggress directions
+        const order = await Order.findOne({
+            _id: new mongoose.Types.ObjectId(orderId),
+            products: {
+                $elemMatch: {
+                    _id: req.user?._id,
+                },
+            },
+        });
+
+        if (!order) {
+            throw new ApiError(400, "Unable to find order");
+        }
+
+        if (order.status === "CANCELLED") {
+            throw new ApiError(400, "cancelled order can not be updated");
+        }
+        const { status } = zodResult.data;
+
+        // "PENDING" -> "DELIVERED"
+        // "CANCELLED"
+
+        if (
+            order.status === "PENDING" &&
+            status !== "PENDING" &&
+            status !== "CANCELLED"
+        ) {
+            order.status = status; // DELIVERED
+        }
+
+        await order.save({ validateBeforeSave: false });
+
+        const updateOrder = await Order.findOne({
+            _id: new mongoose.Types.ObjectId(orderId),
+            products: {
+                _id: req.user?._id,
+            },
+        }).lean();
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, updateOrder, "Order update successfully")
+            );
+    }
 );
 
 export {
