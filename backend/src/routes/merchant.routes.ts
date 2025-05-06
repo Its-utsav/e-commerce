@@ -11,7 +11,10 @@ import {
 } from "../controllers/merchant.controller";
 import { getUserInfo, updateUser } from "../controllers/user.controller";
 import { upload } from "../middleware/multer.middleware";
-import { getAllProducts, getInfoOfProduct } from "../controllers/product.controller";
+import {
+    getAllProducts,
+    getInfoOfProduct,
+} from "../controllers/product.controller";
 
 const router = Router();
 
