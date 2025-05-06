@@ -1,7 +1,7 @@
 import mongoose, { Document, Model, model, Schema, Types } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-interface ProductMethods { }
+interface ProductMethods {}
 
 export interface ProductData {
     name: string;
@@ -19,8 +19,8 @@ export interface ProductData {
 
 export interface ProductDocument
     extends ProductData,
-    Document<Types.ObjectId>,
-    ProductMethods { }
+        Document<Types.ObjectId>,
+        ProductMethods {}
 
 export interface ProductModel
     extends Model<ProductDocument, {}, ProductMethods> {

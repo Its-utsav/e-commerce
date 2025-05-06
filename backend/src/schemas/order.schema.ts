@@ -82,9 +82,9 @@ export const orderOutputZodSchema = z.object({
 export const updateOrderStatusZodSchema = z.object({
     status: z.enum(["PENDING", "DELIVERED", "CANCELLED"], {
         required_error: "Order status is required",
-    })
-})
+    }),
+});
 
 export type orderType = z.infer<typeof orderOutputZodSchema>;
 export type createOrder = z.infer<typeof createOrderInputZodSchema>;
-export type updateOrderStatusType = z.infer<typeof updateOrderStatusZodSchema>
+export type updateOrderStatusType = z.infer<typeof updateOrderStatusZodSchema>;

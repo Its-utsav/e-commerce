@@ -172,10 +172,9 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
 
     // ONLY for merchant ---------
     /**
-     * @todo Complete this 
+     * @todo Complete this
      */
     if (req.user?.role === "MERCHANT" && req.baseUrl.includes("/merchant")) {
-
     }
 
     if (!product) {
