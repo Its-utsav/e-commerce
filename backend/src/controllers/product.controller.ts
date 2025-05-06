@@ -3,7 +3,6 @@ import Product, { ProductDocument } from "../model/product.model";
 import {
     productFindQueryZodSchema,
     productFindQuery,
-    searchProductById,
     searchProductByIdZodSchema,
 } from "../schemas/product.schema";
 import { ApiResponse } from "../utils/ApiResponse";

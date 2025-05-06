@@ -16,10 +16,10 @@ const getCartDetails = asyncHandler(async (req, res) => {
     if (!allCarts) {
         throw new ApiError(404, "No carts found");
     }
-    const cartInfo = ""
+    const cart: any = ""
 
     return res.status(200).json(
-        new ApiResponse(200, {}, "Cart details fetched successfully")
+        new ApiResponse(200, cart, "Cart details fetched successfully")
     )
 });
 
