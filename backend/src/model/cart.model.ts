@@ -1,4 +1,10 @@
-import { model, ObjectId, Schema, Document, Model, Types } from "mongoose";
+import mongoose, {
+    model,
+    Schema,
+    Document,
+    Model,
+    Types,
+} from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 import Product, { ProductDocument } from "./product.model";
 
@@ -11,14 +17,14 @@ interface ICartMethods {
 }
 
 interface ICartProductItem {
-    productId: ObjectId;
+    productId: mongoose.Types.ObjectId;
     quantity: number;
 }
 
 interface ICartData {
     // _id: ObjectId;
     amount: number;
-    userId: ObjectId;
+    userId: mongoose.Types.ObjectId;
     products: ICartProductItem[];
     totalItems: number;
     createdAt: Date;
@@ -76,7 +82,7 @@ cartSchema.methods.calculateTotal = async function (): Promise<totalAndQty> {
     if (!product || product.length == 0) {
         return {
             total: 0,
-            qty: 0
+            qty: 0,
         };
     }
     // fetch data fro all products
@@ -114,14 +120,20 @@ cartSchema.methods.calculateTotal = async function (): Promise<totalAndQty> {
     };
 };
 
-cartSchema.pre("save", async function () {
+cartSchema.pre("save", async function (next) {
     const { qty, total } = await this.calculateTotal();
-    if (this.isModified("totalItems") || this.amount !== total || this.isModified("products")) {
+    if (
+        this.isModified("totalItems") ||
+        this.amount !== total ||
+        this.totalItems !== qty ||
+        this.isModified("products")
+    ) {
         this.amount = total;
         this.totalItems = qty;
         await this.save();
+        next();
     }
-
+    next();
 });
 
 const Cart = model("Cart", cartSchema);

@@ -1,6 +1,7 @@
+import { isValidObjectId } from "mongoose";
 import { z } from "zod";
 
-export const cartItem = z.object({
+export const cartItemZod = z.object({
     productId: z.string({
         required_error: "Product Id is required",
         invalid_type_error: "Product Id must be string",
@@ -12,6 +13,12 @@ export const cartItem = z.object({
         })
         .int({ message: "Quantity must be intergere" })
         .min(1, { message: "Quantity must be at least 1" }),
+}).refine((data) => {
+    if (!isValidObjectId(data.productId)) return false;
+    return true;
+}, {
+    message: "Invalid product id",
+    path: ["productId"]
 });
 
 export const cartZodSchema = z.object({
@@ -29,7 +36,7 @@ export const cartZodSchema = z.object({
             invalid_type_error: "Amount must be number",
         })
         .min(0, { message: "Amount cannot be negative" }),
-    products: z.array(cartItem).default([]),
+    products: z.array(cartItemZod).default([]),
     createdAt: z.date({
         required_error: "Creation date is required",
         invalid_type_error: "Creation date must be a Date object",
@@ -40,7 +47,7 @@ export const cartZodSchema = z.object({
     }),
 });
 
-export const addItemInToCart = z.object({
+export const addItemInToCartZodSchema = z.object({
     productId: z.string({
         required_error: "Product Id is required",
         invalid_type_error: "Product Id must be string",
@@ -52,8 +59,14 @@ export const addItemInToCart = z.object({
         })
         .int({ message: "Quantity must be intergere" })
         .min(1, { message: "Quantity must be at least 1" }),
+}).refine((data) => {
+    if (!isValidObjectId(data.productId)) return false;
+    return true;
+}, {
+    message: "Invalid product id",
+    path: ["productId"]
 });
 
 export type cartType = z.infer<typeof cartZodSchema>;
-export type cartItem = z.infer<typeof cartItem>;
-export type addItemInCart = z.infer<typeof addItemInToCart>;
+export type cartItem = z.infer<typeof cartItemZod>;
+export type addItemInCart = z.infer<typeof addItemInToCartZodSchema>;

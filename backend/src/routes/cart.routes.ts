@@ -14,7 +14,7 @@ router.use(verifyUser);
 router.route("/me").get(getCartDetails);
 router.route("/me/items").post(addProductToTheCart);
 router
-    .route("/me/items")
+    .route("/me/items/:productId")
     .patch(updateProductQuanity)
     .delete(deleteProductFromCart);
 router.route("/me/clear").delete(deleteCart);
