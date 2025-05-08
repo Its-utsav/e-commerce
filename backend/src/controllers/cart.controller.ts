@@ -133,89 +133,114 @@ const addProductToTheCart = asyncHandler(
     }
 );
 
-const updateProductQuanity = asyncHandler(async (req: Request<{}, {}, cartItem>, res: Response) => {
-    // some basics checks
-    // productid , qty
-    // no product -> than just say no product
-    // product in cart than -> update the qty
+const updateProductQuanity = asyncHandler(
+    async (req: Request<{}, {}, cartItem>, res: Response) => {
+        // some basics checks
+        // productid , qty
+        // no product -> than just say no product
+        // product in cart than -> update the qty
 
-    const zodStatus = cartItemZod.safeParse(req.body);
+        const zodStatus = cartItemZod.safeParse(req.body);
 
-    if (!zodStatus.success) {
-        const error = zodStatus.error.errors
-            .map((e) => e.message)
-            .join(", ");
-        throw new ApiError(400, error);
-    }
-
-    const userId = req.user?._id;
-    const cart = await Cart.findOne({ userId });
-
-    if (!cart) {
-        throw new ApiError(400, "Their is no cart, so you cant't update it");
-    }
-    const { productId, quantity } = zodStatus.data;
-    const productInCart = cart.products.findIndex((item) => item.productId.toString() === productId);
-    if (productInCart == -1) {
-        throw new ApiError(400, "Product not found it cart you have to add it first");
-        // OR may be we can inject in req and redircet to add in cart route
-    }
-
-    // product in cart 
-    // UPDATE IN QUANITY
-    // MORE -> quantity -> 0 than remove it
-    if (quantity == 0) { }
-
-    cart.products[productInCart].quantity = quantity;
-    const updatedCart = await cart.save();
-
-    return res.status(200).json(
-        new ApiResponse(200, updatedCart, "Product quanity update successfully")
-    )
-});
-
-
-const deleteProductFromCart = asyncHandler(async (req: Request, res: Response) => {
-    const productId = req.params.productId;
-    if (!productId) {
-        throw new ApiError(400, "Product id is required");
-    }
-
-    if (!isValidObjectId(productId)) {
-        throw new ApiError(400, "Invalid product id");
-    }
-    const userId = req.user?._id;
-    const updatedCart = await Cart.updateOne({
-        userId
-    }, {
-        $pull: {
-            products: {
-                productId: new mongoose.Types.ObjectId(productId)
-            }
+        if (!zodStatus.success) {
+            const error = zodStatus.error.errors
+                .map((e) => e.message)
+                .join(", ");
+            throw new ApiError(400, error);
         }
-    })
 
-    if (updatedCart.modifiedCount === 0) {
-        throw new ApiError(404, "Prodcut not found in cart");
+        const userId = req.user?._id;
+        const cart = await Cart.findOne({ userId });
+
+        if (!cart) {
+            throw new ApiError(
+                400,
+                "Their is no cart, so you cant't update it"
+            );
+        }
+        const { productId, quantity } = zodStatus.data;
+        const productInCart = cart.products.findIndex(
+            (item) => item.productId.toString() === productId
+        );
+        if (productInCart == -1) {
+            throw new ApiError(
+                400,
+                "Product not found it cart you have to add it first"
+            );
+            // OR may be we can inject in req and redircet to add in cart route
+        }
+
+        // product in cart
+        // UPDATE IN QUANITY
+        // MORE -> quantity -> 0 than remove it
+        if (quantity == 0) {
+        }
+
+        cart.products[productInCart].quantity = quantity;
+        const updatedCart = await cart.save();
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    updatedCart,
+                    "Product quanity update successfully"
+                )
+            );
     }
-    return res.status(200).json(
-        new ApiResponse(200, updatedCart, "Product deleted from cart successfully")
-    )
-});
+);
+
+const deleteProductFromCart = asyncHandler(
+    async (req: Request, res: Response) => {
+        const productId = req.params.productId;
+        if (!productId) {
+            throw new ApiError(400, "Product id is required");
+        }
+
+        if (!isValidObjectId(productId)) {
+            throw new ApiError(400, "Invalid product id");
+        }
+        const userId = req.user?._id;
+        const updatedCart = await Cart.updateOne(
+            {
+                userId,
+            },
+            {
+                $pull: {
+                    products: {
+                        productId: new mongoose.Types.ObjectId(productId),
+                    },
+                },
+            }
+        );
+
+        if (updatedCart.modifiedCount === 0) {
+            throw new ApiError(404, "Prodcut not found in cart");
+        }
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    updatedCart,
+                    "Product deleted from cart successfully"
+                )
+            );
+    }
+);
 
 const deleteCart = asyncHandler(async (req: Request, res: Response) => {
-    // find and delete the cart 
+    // find and delete the cart
     // no found no worry
     const userId = req.user?._id;
-    const deletedCart = await Cart.findOneAndDelete(
-        { userId }
-    )
+    const deletedCart = await Cart.findOneAndDelete({ userId });
     if (!deletedCart) {
         throw new ApiError(404, "Cart not found");
     }
-    return res.status(200).json(
-        new ApiResponse(200, {}, "Cart deleted succesfully")
-    )
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Cart deleted succesfully"));
 });
 
 export {
