@@ -21,6 +21,8 @@ import {
 } from "../utils/cloudinary";
 import { options } from "../constants";
 import jwt from "jsonwebtoken";
+import Order from "../model/order.model";
+import Cart from "../model/cart.model";
 
 const registerUser = asyncHandler(
     async (req: Request<{}, {}, createUser>, res: Response) => {
@@ -263,7 +265,7 @@ const refreshAccessTokenViaRefreshToken = asyncHandler(async (req, res) => {
 const getUserInfo = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
     if (!userId) {
-        throw new ApiError(401, "User Id not provided");
+        throw new ApiError(400, "User Id not provided");
     }
     const user = await User.findById(userId)
         .select("-password -refreshToken")
@@ -276,17 +278,34 @@ const getUserInfo = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user, "User data fetched successfully"));
 });
 
-// TODO - DELETE ORDERS , CARTS , PRODUCTS
-
 const deleteUser = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
     if (!userId) {
         throw new ApiError(401, "User Id not provided");
     }
-    const user = await User.findByIdAndDelete(userId);
-    if (!user) {
-        throw new ApiError(404, "User not found");
+    const session = await mongoose.startSession();
+    try {
+        session.startTransaction();
+        const cart = await Cart.findOneAndDelete({ userId }, { session });
+        const order = await Order.deleteMany({ userId: userId }, { session });
+        if (!cart) {
+            await session.abortTransaction();
+            throw new ApiError(500, "Failed to delete cart");
+        }
+        const user = await User.findByIdAndDelete(userId, { session });
+        if (!user) {
+            await session.abortTransaction();
+            throw new ApiError(404, "User not found");
+        }
+        await session.commitTransaction();
+    } catch (error) {
+        await session.abortTransaction();
+        if (error instanceof ApiError) throw error;
+        new ApiError(500, "something went wrong while user deletion");
+    } finally {
+        await session.endSession();
     }
+
     return res
         .status(200)
         .json(new ApiResponse(200, {}, "User deleted successfully"));
