@@ -1,16 +1,23 @@
 import { Request, Response } from "express";
 import asyncHandler from "../utils/asyncHandler";
-import Order from "../model/order.model";
+import Order, { OrderDocument } from "../model/order.model";
 import { ApiResponse } from "../utils/ApiResponse";
 import {
     createOrder,
     createOrderInputZodSchema,
 } from "../schemas/order.schema";
-import mongoose, { Types } from "mongoose";
+import mongoose, {
+    AggregatePaginateResult,
+    isValidObjectId,
+    PaginateOptions,
+    PipelineStage,
+    Types,
+} from "mongoose";
 import ApiError from "../utils/ApiError";
 import Cart from "../model/cart.model";
 import Product from "../model/product.model";
-
+import { } from "mongoose-aggregate-paginate-v2";
+import { isValid } from "zod";
 interface IProductItems {
     productId: Types.ObjectId;
     quantity: number;
@@ -126,7 +133,7 @@ const placeNewOrder = asyncHandler(
                 // sufficent stock so price * quantity and store in Overall total amount
                 productAmount += productDetails.finalPrice * item.quantity;
 
-                // add necessary info in array 
+                // add necessary info in array
                 orderProductItems.push({
                     productId: new mongoose.Types.ObjectId(item.productId),
                     price: productDetails.finalPrice,
@@ -174,7 +181,7 @@ const placeNewOrder = asyncHandler(
             console.log("Error from placing new order ", error);
 
             if (error instanceof ApiError) {
-                throw error
+                throw error;
             }
 
             throw new ApiError(500, "Someting went wrong");
@@ -185,14 +192,164 @@ const placeNewOrder = asyncHandler(
 );
 
 const getOrderHistoryDetails = asyncHandler(
-    async (req: Request, res: Response) => { }
+    async (req: Request, res: Response) => {
+        const userId = req.user?._id;
+        const page = parseInt(req.query.page as string, 10) || 1;
+        const limit = parseInt(req.query.limit as string, 10) || 10;
+        const sortQuery = req.query.sort as string;
+        let sort: { [key: string]: 1 | -1 } = {};
+
+        if (sortQuery) {
+            const [sortFiled, sortOrder] = sortQuery.split(":");
+            if (sortFiled && sortOrder) {
+                sort = {
+                    [sortFiled]: sortOrder === "asc" ? 1 : -1,
+                };
+            }
+        } else {
+            sort = { createdAt: -1 };
+        }
+
+        const options: PaginateOptions = {
+            page,
+            limit,
+            sort,
+        };
+
+        // my be use paginations
+        const pipeline: PipelineStage[] = [
+            {
+                $match: {
+                    userId,
+                },
+            },
+        ];
+        const orders: AggregatePaginateResult<OrderDocument> =
+            await Order.aggregatePaginate(Order.aggregate(pipeline), options);
+
+        if (!orders || orders.docs.length === 0) {
+            throw new ApiError(404, "No orders found");
+        }
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    orders,
+                    "Order history fecthed successfully"
+                )
+            );
+    }
 );
 
-const getOrderDetails = asyncHandler(async (req: Request, res: Response) => { });
+const getOrderDetails = asyncHandler(async (req: Request, res: Response) => {
+    // orderId
+    const userId = req.user?._id;
+    const orderId = req.params.orderId;
+    if (!isValidObjectId(orderId)) {
+        throw new ApiError(400, "Invalid order Id");
+    }
 
-const cancelOrder = asyncHandler(async (req: Request, res: Response) => { });
+    // TODO -> after output testing ADD AS PER requirment
+    const pipeline: PipelineStage[] = [
+        {
+            $match: {
+                userId,
+                _id: orderId,
+            },
+        },
+        {
+            $unwind: "$products",
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "products.productId",
+                foreignField: "_id",
+                as: "productDetails",
+            },
+        },
+    ];
+    const ordersOrderDocument = await Order.aggregate(pipeline);
+});
 
-const makeAPayment = asyncHandler(async (req: Request, res: Response) => { });
+const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const orderId = req.params.orderId;
+    if (!isValidObjectId(orderId)) {
+        throw new ApiError(400, "Invalid order Id");
+    }
+    const orderDetails = await Order.findById(orderId);
+    if (!orderDetails) {
+        throw new ApiError(404, "No order found");
+    }
+    if (orderDetails?.userId.toString() !== userId?.toString()) {
+        throw new ApiError(401, "Unauthorized : you cannot cacel this order")
+    }
+
+    if (orderDetails.status === "CANCELLED") {
+        return res.status(200).json(
+            new ApiResponse(200, orderDetails, "Order is already cancelled")
+        );
+    }
+    const session = await mongoose.startSession();
+    const productIds = orderDetails.products.map((item) => item.productId);
+    const products = await Product.find({
+        _id: {
+            $in: productIds
+        }
+    }).select("stock").lean();
+
+    try {
+        session.startTransaction();
+
+        // restore the stock
+
+        for (let item of products) {
+            await Product.findByIdAndUpdate(item._id, {
+                $inc: {
+                    stock: item.stock,
+                }
+            }, { session })
+        }
+        orderDetails.status = "CANCELLED";
+        await orderDetails?.save();
+        await session.commitTransaction();
+
+        return res.status(200).json(
+            new ApiResponse(200, orderDetails, "Order successfully canceled")
+        )
+    } catch (error) {
+        if (error instanceof ApiError) { throw error };
+        console.error(`Error while cancel the order ${error}`);
+        throw new ApiError(500, "Something went wrong while canceling order");
+    } finally {
+        await session.endSession();
+    }
+});
+
+const makeAPayment = asyncHandler(async (req: Request, res: Response) => {
+
+    const userId = req.user?._id;
+    const orderId = req.params.orderId;
+
+    if (!isValidObjectId(orderId)) {
+        throw new ApiError(400, "Invalid order Id");
+    }
+
+    const orderDetails = await Order.findById(orderId);
+
+    if (orderDetails?.userId !== userId) {
+        throw new ApiError(401, "You make payment of other's order")
+    }
+    const message = {
+        m1: "You have successfully complete the dumy payment",
+        m2: "LOL :)"
+    }
+    return res.status(200).json(
+        new ApiResponse(200, message, "Payment completed successfully")
+    )
+});
 
 export {
     placeNewOrder,

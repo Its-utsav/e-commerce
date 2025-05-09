@@ -1,6 +1,6 @@
-import { Document, Model, model, Schema, Types } from "mongoose";
+import { AggregatePaginateModel, Document, Model, model, Schema, Types } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
-interface OrderMethods {}
+interface OrderMethods { }
 
 interface IProductItems {
     productId: Types.ObjectId;
@@ -18,10 +18,10 @@ export interface IOrderData {
     updatedAt: Date;
 }
 
-interface OrderDocument
+export interface OrderDocument
     extends IOrderData,
-        Document<Types.ObjectId>,
-        OrderMethods {}
+    Document<Types.ObjectId>,
+    OrderMethods { }
 
 const orderSchema = new Schema<
     OrderDocument,
@@ -76,5 +76,6 @@ const orderSchema = new Schema<
     }
 );
 orderSchema.plugin(mongooseAggregatePaginate);
-const Order = model<OrderDocument>("Order", orderSchema);
+interface orderModel extends Model<OrderDocument>, AggregatePaginateModel<OrderDocument> { }
+const Order = model<OrderDocument, orderModel>("Order", orderSchema);
 export default Order;
