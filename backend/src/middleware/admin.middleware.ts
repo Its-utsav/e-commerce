@@ -5,7 +5,7 @@ import asyncHandler from "../utils/asyncHandler";
 const adminOnly = asyncHandler(async (req, _, next) => {
     const userId = req.user?._id;
 
-    const isAdmin = await User.findOne({
+    const isAdmin = await User.exists({
         _id: userId,
         role: "ADMIN",
     });
