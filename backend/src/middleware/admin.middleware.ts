@@ -2,15 +2,15 @@ import User from "../model/user.model";
 import ApiError from "../utils/ApiError";
 import asyncHandler from "../utils/asyncHandler";
 
-const merchantOnly = asyncHandler(async (req, _, next) => {
+const adminOnly = asyncHandler(async (req, _, next) => {
     const userId = req.user?._id;
 
-    const isMerchant = await User.findOne({
+    const isAdmin = await User.findOne({
         _id: userId,
-        role: "MERCHANT",
+        role: "ADMIN",
     });
 
-    if (!isMerchant) {
+    if (!isAdmin) {
         throw new ApiError(
             401,
             "Unauthorized request , you can't access the resource"
@@ -19,4 +19,4 @@ const merchantOnly = asyncHandler(async (req, _, next) => {
     next();
 });
 
-export default merchantOnly;
+export default adminOnly;

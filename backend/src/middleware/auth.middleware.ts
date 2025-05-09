@@ -9,7 +9,7 @@ export interface verifyUserPayload extends JwtPayload {
     username: string;
 }
 
-const verifyUser = asyncHandler(async (req, res, next) => {
+const verifyUser = asyncHandler(async (req, _, next) => {
     try {
         // get incoming refreshtoken can be by cookie , in header
         // verfity that is token creared by us or not -> if no not allowed
