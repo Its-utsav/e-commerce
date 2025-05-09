@@ -1,7 +1,9 @@
 import mongoose, { Document, Model, model, Schema, Types } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-interface ProductMethods {}
+interface ProductMethods {
+    isStockAvailable(): boolean;
+}
 
 export interface ProductData {
     name: string;
@@ -96,6 +98,11 @@ productSchema.pre("save", function (next) {
 
     next();
 });
+
+productSchema.methods.isStockAvailable = function () {
+    return this.stock > 0;
+};
+
 const Product = model<ProductDocument, ProductModel>("Product", productSchema);
 
 export type ProductFilter = mongoose.FilterQuery<ProductData>;

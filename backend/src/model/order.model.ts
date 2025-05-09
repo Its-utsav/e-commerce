@@ -8,7 +8,7 @@ interface IProductItems {
     price: number;
 }
 
-interface IOrderData {
+export interface IOrderData {
     userId: Types.ObjectId;
     products: IProductItems[];
     amount: number;

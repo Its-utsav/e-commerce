@@ -1,10 +1,4 @@
-import mongoose, {
-    model,
-    Schema,
-    Document,
-    Model,
-    Types,
-} from "mongoose";
+import mongoose, { model, Schema, Document, Model, Types } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 import Product, { ProductDocument } from "./product.model";
 
@@ -31,7 +25,7 @@ interface ICartData {
     updatedAt: Date;
 }
 
-interface ICartDocument extends ICartData, Document<Types.ObjectId> { }
+interface ICartDocument extends ICartData, Document<Types.ObjectId> {}
 
 const cartSchema = new Schema<
     ICartDocument,

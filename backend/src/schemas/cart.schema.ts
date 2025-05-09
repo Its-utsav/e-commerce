@@ -1,25 +1,30 @@
 import { isValidObjectId } from "mongoose";
 import { z } from "zod";
 
-export const cartItemZod = z.object({
-    productId: z.string({
-        required_error: "Product Id is required",
-        invalid_type_error: "Product Id must be string",
-    }),
-    quantity: z
-        .number({
-            required_error: "Quantity is required",
-            invalid_type_error: "Quantity must be number",
-        })
-        .int({ message: "Quantity must be intergere" })
-        .min(1, { message: "Quantity must be at least 1" }),
-}).refine((data) => {
-    if (!isValidObjectId(data.productId)) return false;
-    return true;
-}, {
-    message: "Invalid product id",
-    path: ["productId"]
-});
+export const cartItemZod = z
+    .object({
+        productId: z.string({
+            required_error: "Product Id is required",
+            invalid_type_error: "Product Id must be string",
+        }),
+        quantity: z
+            .number({
+                required_error: "Quantity is required",
+                invalid_type_error: "Quantity must be number",
+            })
+            .int({ message: "Quantity must be intergere" })
+            .min(1, { message: "Quantity must be at least 1" }),
+    })
+    .refine(
+        (data) => {
+            if (!isValidObjectId(data.productId)) return false;
+            return true;
+        },
+        {
+            message: "Invalid product id",
+            path: ["productId"],
+        }
+    );
 
 export const cartZodSchema = z.object({
     _id: z.string({
@@ -47,25 +52,30 @@ export const cartZodSchema = z.object({
     }),
 });
 
-export const addItemInToCartZodSchema = z.object({
-    productId: z.string({
-        required_error: "Product Id is required",
-        invalid_type_error: "Product Id must be string",
-    }),
-    quantity: z
-        .number({
-            required_error: "Quantity is required",
-            invalid_type_error: "Quantity must be number",
-        })
-        .int({ message: "Quantity must be intergere" })
-        .min(1, { message: "Quantity must be at least 1" }),
-}).refine((data) => {
-    if (!isValidObjectId(data.productId)) return false;
-    return true;
-}, {
-    message: "Invalid product id",
-    path: ["productId"]
-});
+export const addItemInToCartZodSchema = z
+    .object({
+        productId: z.string({
+            required_error: "Product Id is required",
+            invalid_type_error: "Product Id must be string",
+        }),
+        quantity: z
+            .number({
+                required_error: "Quantity is required",
+                invalid_type_error: "Quantity must be number",
+            })
+            .int({ message: "Quantity must be intergere" })
+            .min(1, { message: "Quantity must be at least 1" }),
+    })
+    .refine(
+        (data) => {
+            if (!isValidObjectId(data.productId)) return false;
+            return true;
+        },
+        {
+            message: "Invalid product id",
+            path: ["productId"],
+        }
+    );
 
 export type cartType = z.infer<typeof cartZodSchema>;
 export type cartItem = z.infer<typeof cartItemZod>;
