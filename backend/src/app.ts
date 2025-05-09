@@ -22,6 +22,7 @@ import productRouets from "./routes/product.routes";
 import merchantRoutes from "./routes/merchant.routes";
 import cartRoutes from "./routes/cart.routes";
 import orderRoutes from "./routes/order.routes";
+import adminRoutes from "./routes/admin.routes";
 
 // ROUTES uses
 app.use(`${PREFIX_URL}/auth`, userRoutes);
@@ -29,6 +30,7 @@ app.use(`${PREFIX_URL}/products`, productRouets);
 app.use(`${PREFIX_URL}/merchant`, merchantRoutes);
 app.use(`${PREFIX_URL}/carts`, cartRoutes);
 app.use(`${PREFIX_URL}/orders`, orderRoutes);
+app.use(`${PREFIX_URL}/admin`, adminRoutes);
 
 // GLOBAL ERROR Handling
 app.use(globalErrorHandler);

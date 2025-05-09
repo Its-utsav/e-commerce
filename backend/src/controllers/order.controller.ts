@@ -16,7 +16,7 @@ import mongoose, {
 import ApiError from "../utils/ApiError";
 import Cart from "../model/cart.model";
 import Product from "../model/product.model";
-import { } from "mongoose-aggregate-paginate-v2";
+import {} from "mongoose-aggregate-paginate-v2";
 import { isValid } from "zod";
 interface IProductItems {
     productId: Types.ObjectId;
@@ -284,21 +284,25 @@ const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(404, "No order found");
     }
     if (orderDetails?.userId.toString() !== userId?.toString()) {
-        throw new ApiError(401, "Unauthorized : you cannot cacel this order")
+        throw new ApiError(401, "Unauthorized : you cannot cacel this order");
     }
 
     if (orderDetails.status === "CANCELLED") {
-        return res.status(200).json(
-            new ApiResponse(200, orderDetails, "Order is already cancelled")
-        );
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, orderDetails, "Order is already cancelled")
+            );
     }
     const session = await mongoose.startSession();
     const productIds = orderDetails.products.map((item) => item.productId);
     const products = await Product.find({
         _id: {
-            $in: productIds
-        }
-    }).select("stock").lean();
+            $in: productIds,
+        },
+    })
+        .select("stock")
+        .lean();
 
     try {
         session.startTransaction();
@@ -306,21 +310,33 @@ const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
         // restore the stock
 
         for (let item of products) {
-            await Product.findByIdAndUpdate(item._id, {
-                $inc: {
-                    stock: item.stock,
-                }
-            }, { session })
+            await Product.findByIdAndUpdate(
+                item._id,
+                {
+                    $inc: {
+                        stock: item.stock,
+                    },
+                },
+                { session }
+            );
         }
         orderDetails.status = "CANCELLED";
         await orderDetails?.save();
         await session.commitTransaction();
 
-        return res.status(200).json(
-            new ApiResponse(200, orderDetails, "Order successfully canceled")
-        )
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    orderDetails,
+                    "Order successfully canceled"
+                )
+            );
     } catch (error) {
-        if (error instanceof ApiError) { throw error };
+        if (error instanceof ApiError) {
+            throw error;
+        }
         console.error(`Error while cancel the order ${error}`);
         throw new ApiError(500, "Something went wrong while canceling order");
     } finally {
@@ -329,7 +345,6 @@ const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const makeAPayment = asyncHandler(async (req: Request, res: Response) => {
-
     const userId = req.user?._id;
     const orderId = req.params.orderId;
 
@@ -340,15 +355,15 @@ const makeAPayment = asyncHandler(async (req: Request, res: Response) => {
     const orderDetails = await Order.findById(orderId);
 
     if (orderDetails?.userId !== userId) {
-        throw new ApiError(401, "You make payment of other's order")
+        throw new ApiError(401, "You make payment of other's order");
     }
     const message = {
         m1: "You have successfully complete the dumy payment",
-        m2: "LOL :)"
-    }
-    return res.status(200).json(
-        new ApiResponse(200, message, "Payment completed successfully")
-    )
+        m2: "LOL :)",
+    };
+    return res
+        .status(200)
+        .json(new ApiResponse(200, message, "Payment completed successfully"));
 });
 
 export {
