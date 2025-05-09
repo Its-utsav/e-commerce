@@ -173,8 +173,6 @@ const updateProductQuanity = asyncHandler(
         // product in cart
         // UPDATE IN QUANITY
         // MORE -> quantity -> 0 than remove it
-        if (quantity == 0) {
-        }
 
         cart.products[productInCart].quantity = quantity;
         const updatedCart = await cart.save();
