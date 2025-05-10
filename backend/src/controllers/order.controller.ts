@@ -16,7 +16,7 @@ import mongoose, {
 import ApiError from "../utils/ApiError";
 import Cart from "../model/cart.model";
 import Product from "../model/product.model";
-import {} from "mongoose-aggregate-paginate-v2";
+import { } from "mongoose-aggregate-paginate-v2";
 import { isValid } from "zod";
 interface IProductItems {
     productId: Types.ObjectId;
@@ -271,6 +271,15 @@ const getOrderDetails = asyncHandler(async (req: Request, res: Response) => {
         },
     ];
     const ordersOrderDocument = await Order.aggregate(pipeline);
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                ordersOrderDocument,
+                "Order details fetched successfully"
+            )
+        );
 });
 
 const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
@@ -283,8 +292,11 @@ const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
     if (!orderDetails) {
         throw new ApiError(404, "No order found");
     }
-    if (orderDetails?.userId.toString() !== userId?.toString()) {
-        throw new ApiError(401, "Unauthorized : you cannot cacel this order");
+
+    if (!req.baseUrl.includes("admin") && !(req.user?.role === "ADMIN")) {
+        if (orderDetails?.userId.toString() !== userId?.toString()) {
+            throw new ApiError(401, "Unauthorized : you cannot cacel this order");
+        }
     }
 
     if (orderDetails.status === "CANCELLED") {

@@ -1,20 +1,20 @@
+import { Request, Response } from "express";
 import mongoose, {
     AggregatePaginateResult,
     isValidObjectId,
     PaginateOptions,
     PipelineStage,
 } from "mongoose";
-import User, { UserDocument } from "../model/user.model";
-import ApiError from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import asyncHandler from "../utils/asyncHandler";
 import Cart from "../model/cart.model";
 import Order from "../model/order.model";
-import { Request, Response } from "express";
+import User, { UserDocument } from "../model/user.model";
 import {
     updateRoleType,
     updateUserRoleZodSchema,
 } from "../schemas/user.schema";
+import ApiError from "../utils/ApiError";
+import { ApiResponse } from "../utils/ApiResponse";
+import asyncHandler from "../utils/asyncHandler";
 
 const getAllUsers = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page as string, 10) || 1;
@@ -220,12 +220,67 @@ const updateUserRole = asyncHandler(
     }
 );
 
-const deleteOrder = asyncHandler(async (req, res) => { });
+const deleteOrderByAdmin = asyncHandler(async (req, res) => {
+    const orderId = req.params.orderId;
 
-export {
-    getAllUsers,
-    getUserDeatils,
-    deleteUser,
-    updateUserRole,
-    deleteOrder,
-};
+    if (!isValidObjectId(orderId)) {
+        throw new ApiError(400, "Invalid order id");
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+        throw new ApiError(404, "Order not found");
+    }
+
+    if (["DELIVERED", "CANCELLED"].includes(order.status)) {
+        throw new ApiError(400, "Cannot delete an order that is already delivered or cancelled");
+    }
+
+    order.status = "CANCELLED";
+    await order.save();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, order, "Order cancelled successfully"));
+});
+
+const getAllOrdersDetails = asyncHandler(async (req, res) => {
+    const page = parseInt(req.query.page as string, 10) || 1;
+    const limit = parseInt(req.query.limit as string, 10) || 10;
+    const sortQuery = req.query.sort as string;
+    let sort: { [key: string]: 1 | -1 } = {};
+
+    if (sortQuery) {
+        const [sortFiled, sortOrder] = sortQuery.split(":");
+        if (sortFiled && sortOrder) {
+            sort = {
+                [sortFiled]: sortOrder === "asc" ? 1 : -1,
+            };
+        }
+    } else {
+        sort = { createdAt: -1 };
+    }
+
+    const options: PaginateOptions = {
+        page,
+        limit,
+        sort,
+    };
+
+    const pipeline: PipelineStage[] = [
+        {
+            $match: {},
+        },
+    ];
+    const orders = await Order.aggregatePaginate(Order.aggregate(pipeline), options);
+    if (!orders || orders.length === 0) {
+        throw new ApiError(404, "No orders found");
+
+    }
+    return res.status(200).json(
+        new ApiResponse(200, orders, "All orders fecthed successfully")
+    )
+})
+
+export { deleteOrderByAdmin, deleteUser, getAllUsers, getUserDeatils, updateUserRole, getAllOrdersDetails };
+

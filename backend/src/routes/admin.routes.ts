@@ -1,18 +1,23 @@
 import { Router } from "express";
 import {
-    deleteOrder,
+    deleteOrderByAdmin,
     deleteUser,
     getAllUsers,
     getUserDeatils,
     updateUserRole,
+    getAllOrdersDetails
 } from "../controllers/admin.controller";
+import {
+    deleteProduct,
+    updateProductDetails,
+} from "../controllers/merchant.controller";
+import { getOrderDetails } from "../controllers/order.controller";
 import {
     getAllProducts,
     getInfoOfProduct,
 } from "../controllers/product.controller";
 import adminOnly from "../middleware/admin.middleware";
 import { verifyUser } from "../middleware/auth.middleware";
-import { updateProductDetails, deleteProduct } from "../controllers/merchant.controller";
 
 const router = Router();
 
@@ -31,7 +36,7 @@ router
     .patch(updateProductDetails)
     .delete(deleteProduct);
 
-router.route("/orders").get(getAllProducts);
-router.route("/orders/:ordersId").get(getInfoOfProduct).delete(deleteOrder);
+router.route("/orders").get(getAllOrdersDetails);
+router.route("/orders/:ordersId").get(getOrderDetails).delete(deleteOrderByAdmin);
 
 export default router;

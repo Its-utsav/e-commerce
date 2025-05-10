@@ -1,19 +1,19 @@
 import { Request, Response } from "express";
-import Product, { ProductDocument } from "../model/product.model";
-import {
-    productFindQueryZodSchema,
-    productFindQuery,
-    searchProductByIdZodSchema,
-} from "../schemas/product.schema";
-import { ApiResponse } from "../utils/ApiResponse";
-import asyncHandler from "../utils/asyncHandler";
-import ApiError from "../utils/ApiError";
 import mongoose, {
     Aggregate,
     AggregatePaginateResult,
     PaginateOptions,
     PipelineStage,
 } from "mongoose";
+import Product, { ProductDocument } from "../model/product.model";
+import {
+    productFindQuery,
+    productFindQueryZodSchema,
+    searchProductByIdZodSchema,
+} from "../schemas/product.schema";
+import ApiError from "../utils/ApiError";
+import { ApiResponse } from "../utils/ApiResponse";
+import asyncHandler from "../utils/asyncHandler";
 
 const getAllProducts = asyncHandler(async (req: Request, res: Response) => {
     // 1. Validates the query

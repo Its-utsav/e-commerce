@@ -1,20 +1,20 @@
 import { Router } from "express";
-import { verifyUser } from "../middleware/auth.middleware";
-import merchantOnly from "../middleware/merchant.middleware";
 import {
     createNewProduct,
-    updateProductDetails,
     deleteProduct,
     getMerchantAllOrdersDetails,
     getMerchantOrdersDetails,
     updateOrderStatus,
+    updateProductDetails,
 } from "../controllers/merchant.controller";
-import { getUserInfo, updateUser } from "../controllers/user.controller";
-import { upload } from "../middleware/multer.middleware";
 import {
     getAllProducts,
     getInfoOfProduct,
 } from "../controllers/product.controller";
+import { getUserInfo, updateUser } from "../controllers/user.controller";
+import { verifyUser } from "../middleware/auth.middleware";
+import merchantOnly from "../middleware/merchant.middleware";
+import { upload } from "../middleware/multer.middleware";
 
 const router = Router();
 

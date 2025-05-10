@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { options } from "../constants";
+import Cart from "../model/cart.model";
+import Order from "../model/order.model";
 import User from "../model/user.model";
 import {
     createUser,
@@ -19,10 +23,6 @@ import {
     deleteFromCloudinary,
     getPublicIdByUrl,
 } from "../utils/cloudinary";
-import { options } from "../constants";
-import jwt from "jsonwebtoken";
-import Order from "../model/order.model";
-import Cart from "../model/cart.model";
 
 const registerUser = asyncHandler(
     async (req: Request<{}, {}, createUser>, res: Response) => {
@@ -438,12 +438,7 @@ const changePassword = asyncHandler(
 );
 
 export {
-    registerUser,
-    loginUser,
+    changePassword, deleteUser, getUserInfo, loginUser,
     logoutUser,
-    refreshAccessTokenViaRefreshToken,
-    getUserInfo,
-    deleteUser,
-    updateUser,
-    changePassword,
+    refreshAccessTokenViaRefreshToken, registerUser, updateUser
 };

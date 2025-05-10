@@ -1,15 +1,15 @@
+import { Request, Response } from "express";
 import mongoose, { isValidObjectId } from "mongoose";
 import Cart from "../model/cart.model";
-import asyncHandler from "../utils/asyncHandler";
-import ApiError from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { Response, Request } from "express";
 import {
     addItemInCart,
     addItemInToCartZodSchema,
     cartItem,
     cartItemZod,
 } from "../schemas/cart.schema";
+import ApiError from "../utils/ApiError";
+import { ApiResponse } from "../utils/ApiResponse";
+import asyncHandler from "../utils/asyncHandler";
 
 const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
     // User is already loggdin
@@ -242,9 +242,6 @@ const deleteCart = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export {
-    getCartDetails,
-    addProductToTheCart,
-    updateProductQuanity,
-    deleteCart,
-    deleteProductFromCart,
+    addProductToTheCart, deleteCart,
+    deleteProductFromCart, getCartDetails, updateProductQuanity
 };

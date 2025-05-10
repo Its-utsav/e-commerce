@@ -103,9 +103,12 @@ const updateProductDetails = asyncHandler(
         }
         const userId = req.user?._id;
 
-        if (!req.baseUrl.includes("admin")) {
+        if (!req.baseUrl.includes("admin") && !(req.user?.role === "ADMIN")) {
             if (product.sellerId.toString() !== userId?.toString()) {
-                throw new ApiError(401, "Unauthorized access , this product not belongs to you ")
+                throw new ApiError(
+                    401,
+                    "Unauthorized access , this product not belongs to you "
+                );
             }
         }
 
@@ -194,9 +197,12 @@ const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(400, "Product does not exists");
     }
 
-    if (!req.baseUrl.includes("admin")) {
+    if (!req.baseUrl.includes("admin") && !(req.user?.role === "ADMIN")) {
         if (product.sellerId.toString() !== userId?.toString()) {
-            throw new ApiError(401, "Unauthorized access , this product not belongs to you ")
+            throw new ApiError(
+                401,
+                "Unauthorized access , this product not belongs to you "
+            );
         }
     }
 

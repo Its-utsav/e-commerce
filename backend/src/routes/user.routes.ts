@@ -1,16 +1,16 @@
 import { Router } from "express";
 import {
+    changePassword,
+    deleteUser,
+    getUserInfo,
     loginUser,
     logoutUser,
-    registerUser,
     refreshAccessTokenViaRefreshToken,
-    getUserInfo,
-    deleteUser,
+    registerUser,
     updateUser,
-    changePassword,
 } from "../controllers/user.controller";
-import { formData, upload } from "../middleware/multer.middleware";
 import { verifyUser } from "../middleware/auth.middleware";
+import { formData, upload } from "../middleware/multer.middleware";
 
 const router = Router();
 

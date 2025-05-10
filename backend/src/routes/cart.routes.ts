@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { verifyUser } from "../middleware/auth.middleware";
 import {
     addProductToTheCart,
     deleteCart,
@@ -7,6 +6,7 @@ import {
     getCartDetails,
     updateProductQuanity,
 } from "../controllers/cart.controller";
+import { verifyUser } from "../middleware/auth.middleware";
 
 const router = Router();
 
