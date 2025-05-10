@@ -59,8 +59,16 @@ export const updatePasswordZodSchema = z.object({
         required_error: "Old password is required",
     }),
     newPassword: z.string({
-        required_error: "Old password is required",
+        required_error: "New password is required",
     }),
 });
 
 export type updatePassword = z.infer<typeof updatePasswordZodSchema>;
+
+export const updateUserRoleZodSchema = z.object({
+    role: z.enum(["ADMIN", "USER", "MERCHANT"], {
+        required_error: "Update usre role is required",
+        invalid_type_error: "Role must be string",
+    }),
+});
+export type updateRoleType = z.infer<typeof updateUserRoleZodSchema>;

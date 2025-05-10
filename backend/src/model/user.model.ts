@@ -1,6 +1,13 @@
 import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
-import { Document, Model, model, Schema, Types } from "mongoose";
+import {
+    AggregatePaginateModel,
+    Document,
+    Model,
+    model,
+    Schema,
+    Types,
+} from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 ("mongoose-aggregate-paginate-v2");
 interface IUserMethods {
@@ -26,7 +33,7 @@ interface IUserData extends IAdminData {
     updatedAt: Date;
 }
 
-interface UserDocument
+export interface UserDocument
     extends IUserData,
         Document<Types.ObjectId>,
         IUserMethods {}
@@ -150,6 +157,9 @@ userSchema.methods.generateRefreshToken = function () {
     }
 };
 userSchema.plugin(mongooseAggregatePaginate);
-const User = model("User", userSchema);
+interface UserModel
+    extends Model<UserDocument>,
+        AggregatePaginateModel<UserDocument> {}
+const User = model<UserDocument, UserModel>("User", userSchema);
 
 export default User;

@@ -312,8 +312,6 @@ const deleteUser = asyncHandler(async (req, res) => {
     } finally {
         await session.endSession();
     }
-
-
 });
 
 const updateUser = asyncHandler(

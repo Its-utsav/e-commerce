@@ -12,9 +12,12 @@ import {
     getAllProducts,
     getInfoOfProduct,
 } from "../controllers/product.controller";
+import adminOnly from "../middleware/admin.middleware";
+import { verifyUser } from "../middleware/auth.middleware";
 
 const router = Router();
 
+router.use(verifyUser, adminOnly);
 router.route("/users").get(getAllUsers);
 router.route("/users/:userId").get(getUserDeatils).delete(deleteUser);
 router.route("/user/role/:userId").patch(updateUserRole);
