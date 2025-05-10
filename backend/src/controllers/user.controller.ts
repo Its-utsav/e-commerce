@@ -289,15 +289,22 @@ const deleteUser = asyncHandler(async (req, res) => {
         const cart = await Cart.findOneAndDelete({ userId }, { session });
         const order = await Order.deleteMany({ userId: userId }, { session });
         if (!cart) {
-            await session.abortTransaction();
-            throw new ApiError(500, "Failed to delete cart");
+            console.warn("Failed to delete cart for userId " + userId);
         }
+
+        if (order.deletedCount > 0) {
+            console.warn(`${order.deletedCount} orders deleted for ${userId}`);
+        }
+
         const user = await User.findByIdAndDelete(userId, { session });
         if (!user) {
             await session.abortTransaction();
             throw new ApiError(404, "User not found");
         }
         await session.commitTransaction();
+        return res
+            .status(200)
+            .json(new ApiResponse(200, {}, "User deleted successfully"));
     } catch (error) {
         await session.abortTransaction();
         if (error instanceof ApiError) throw error;
@@ -306,9 +313,7 @@ const deleteUser = asyncHandler(async (req, res) => {
         await session.endSession();
     }
 
-    return res
-        .status(200)
-        .json(new ApiResponse(200, {}, "User deleted successfully"));
+
 });
 
 const updateUser = asyncHandler(
@@ -433,8 +438,6 @@ const changePassword = asyncHandler(
             );
     }
 );
-
-// TODO -> GET THE ORDER HISTORY OF CURRENT USER
 
 export {
     registerUser,
