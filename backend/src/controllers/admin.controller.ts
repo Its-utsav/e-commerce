@@ -220,18 +220,12 @@ const updateUserRole = asyncHandler(
     }
 );
 
-const updateProduct = asyncHandler(async (req, res) => {});
-
-const deleteProduct = asyncHandler(async (req, res) => {});
-
-const deleteOrder = asyncHandler(async (req, res) => {});
+const deleteOrder = asyncHandler(async (req, res) => { });
 
 export {
     getAllUsers,
     getUserDeatils,
     deleteUser,
     updateUserRole,
-    updateProduct,
-    deleteProduct,
     deleteOrder,
 };

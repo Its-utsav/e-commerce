@@ -101,6 +101,13 @@ const updateProductDetails = asyncHandler(
         if (!product) {
             throw new ApiError(404, "Unable to find product");
         }
+        const userId = req.user?._id;
+
+        if (!req.baseUrl.includes("admin")) {
+            if (product.sellerId.toString() !== userId?.toString()) {
+                throw new ApiError(401, "Unauthorized access , this product not belongs to you ")
+            }
+        }
 
         let updateStatus = false;
 
@@ -181,8 +188,16 @@ const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
     const sessions = await mongoose.startSession();
     const product = await Product.findById(id);
 
+    const userId = req.user?._id;
+
     if (!product) {
         throw new ApiError(400, "Product does not exists");
+    }
+
+    if (!req.baseUrl.includes("admin")) {
+        if (product.sellerId.toString() !== userId?.toString()) {
+            throw new ApiError(401, "Unauthorized access , this product not belongs to you ")
+        }
     }
 
     try {

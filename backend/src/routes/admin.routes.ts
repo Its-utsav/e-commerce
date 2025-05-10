@@ -1,11 +1,9 @@
 import { Router } from "express";
 import {
     deleteOrder,
-    deleteProduct,
     deleteUser,
     getAllUsers,
     getUserDeatils,
-    updateProduct,
     updateUserRole,
 } from "../controllers/admin.controller";
 import {
@@ -14,6 +12,7 @@ import {
 } from "../controllers/product.controller";
 import adminOnly from "../middleware/admin.middleware";
 import { verifyUser } from "../middleware/auth.middleware";
+import { updateProductDetails, deleteProduct } from "../controllers/merchant.controller";
 
 const router = Router();
 
@@ -29,7 +28,7 @@ router.route("/products").get(getAllProducts);
 router
     .route("/products/:productId")
     .get(getInfoOfProduct)
-    .patch(updateProduct)
+    .patch(updateProductDetails)
     .delete(deleteProduct);
 
 router.route("/orders").get(getAllProducts);
