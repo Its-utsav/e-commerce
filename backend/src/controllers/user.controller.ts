@@ -438,7 +438,12 @@ const changePassword = asyncHandler(
 );
 
 export {
-    changePassword, deleteUser, getUserInfo, loginUser,
+    changePassword,
+    deleteUser,
+    getUserInfo,
+    loginUser,
     logoutUser,
-    refreshAccessTokenViaRefreshToken, registerUser, updateUser
+    refreshAccessTokenViaRefreshToken,
+    registerUser,
+    updateUser,
 };

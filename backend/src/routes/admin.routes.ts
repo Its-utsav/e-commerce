@@ -5,7 +5,7 @@ import {
     getAllUsers,
     getUserDeatils,
     updateUserRole,
-    getAllOrdersDetails
+    getAllOrdersDetails,
 } from "../controllers/admin.controller";
 import {
     deleteProduct,
@@ -37,6 +37,9 @@ router
     .delete(deleteProduct);
 
 router.route("/orders").get(getAllOrdersDetails);
-router.route("/orders/:ordersId").get(getOrderDetails).delete(deleteOrderByAdmin);
+router
+    .route("/orders/:ordersId")
+    .get(getOrderDetails)
+    .delete(deleteOrderByAdmin);
 
 export default router;

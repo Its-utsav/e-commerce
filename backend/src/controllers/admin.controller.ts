@@ -233,7 +233,10 @@ const deleteOrderByAdmin = asyncHandler(async (req, res) => {
     }
 
     if (["DELIVERED", "CANCELLED"].includes(order.status)) {
-        throw new ApiError(400, "Cannot delete an order that is already delivered or cancelled");
+        throw new ApiError(
+            400,
+            "Cannot delete an order that is already delivered or cancelled"
+        );
     }
 
     order.status = "CANCELLED";
@@ -272,15 +275,23 @@ const getAllOrdersDetails = asyncHandler(async (req, res) => {
             $match: {},
         },
     ];
-    const orders = await Order.aggregatePaginate(Order.aggregate(pipeline), options);
+    const orders = await Order.aggregatePaginate(
+        Order.aggregate(pipeline),
+        options
+    );
     if (!orders || orders.length === 0) {
         throw new ApiError(404, "No orders found");
-
     }
-    return res.status(200).json(
-        new ApiResponse(200, orders, "All orders fecthed successfully")
-    )
-})
+    return res
+        .status(200)
+        .json(new ApiResponse(200, orders, "All orders fecthed successfully"));
+});
 
-export { deleteOrderByAdmin, deleteUser, getAllUsers, getUserDeatils, updateUserRole, getAllOrdersDetails };
-
+export {
+    deleteOrderByAdmin,
+    deleteUser,
+    getAllUsers,
+    getUserDeatils,
+    updateUserRole,
+    getAllOrdersDetails,
+};

@@ -16,7 +16,7 @@ import mongoose, {
 import ApiError from "../utils/ApiError";
 import Cart from "../model/cart.model";
 import Product from "../model/product.model";
-import { } from "mongoose-aggregate-paginate-v2";
+import {} from "mongoose-aggregate-paginate-v2";
 import { isValid } from "zod";
 interface IProductItems {
     productId: Types.ObjectId;
@@ -295,7 +295,10 @@ const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
 
     if (!req.baseUrl.includes("admin") && !(req.user?.role === "ADMIN")) {
         if (orderDetails?.userId.toString() !== userId?.toString()) {
-            throw new ApiError(401, "Unauthorized : you cannot cacel this order");
+            throw new ApiError(
+                401,
+                "Unauthorized : you cannot cacel this order"
+            );
         }
     }
 
