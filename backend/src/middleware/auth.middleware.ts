@@ -16,7 +16,6 @@ const verifyUser = asyncHandler(async (req, _, next) => {
         const incomingAccessToken =
             req.headers.authorization?.replace("Bearer ", "") ||
             req.cookies?.accessToken;
-
         if (!incomingAccessToken) {
             throw new ApiError(
                 401,

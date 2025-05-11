@@ -106,4 +106,4 @@
 | `/products/:productId`    | `DELETE` | Delete Product                                                  |
 | `/orders`                 | `GET`    | Get the info all order where seller is current merchants        |
 | `/orders/:orderId`        | `GET`    | Get info of specific order Id where seller is current merchants |
-| `/orders/status/:orderId` | `DELETE` | Update the order status                                         |
+| `/orders/status/:orderId` | `PATCH`  | Update the order status                                         |

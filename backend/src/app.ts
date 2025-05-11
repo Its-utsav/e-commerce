@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser"
 import globalErrorHandler from "./utils/globalError";
 import { PREFIX_URL } from "./constants";
 const app = express();
@@ -15,6 +16,8 @@ app.use(
         extended: true,
     })
 );
+
+app.use(cookieParser())
 
 // ROUTES
 import userRoutes from "./routes/user.routes";

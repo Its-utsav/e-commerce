@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import { options } from "../constants";
 import Cart from "../model/cart.model";
 import Order from "../model/order.model";
@@ -26,17 +26,8 @@ import {
 
 const registerUser = asyncHandler(
     async (req: Request<{}, {}, createUser>, res: Response) => {
-        const { username, email, password, role, address, avatarUrl } =
-            req.body;
 
-        const zodResult = createUserZodSchema.safeParse({
-            username,
-            email,
-            password,
-            role,
-            address,
-            avatarUrl,
-        });
+        const zodResult = createUserZodSchema.safeParse(req.body);
 
         // any data is missing than stop from here
         if (!zodResult.success) {
@@ -63,11 +54,11 @@ const registerUser = asyncHandler(
         let uploadUrl: string;
         let publicId: string | undefined;
 
+
         if (req.file) {
             const uploadData = await cloudinaryUpload(req.file?.path);
             if (uploadData) {
                 uploadUrl = uploadData.secure_url;
-
                 publicId = getPublicIdByUrl(uploadUrl);
             }
         }
@@ -88,6 +79,7 @@ const registerUser = asyncHandler(
                 ],
                 { session }
             );
+            await session.commitTransaction();
             if (!createdUser || createdUser.length === 0) {
                 if (publicId) deleteFromCloudinary(publicId);
                 throw new ApiError(500, "Faild to create user");
@@ -101,18 +93,18 @@ const registerUser = asyncHandler(
                 address: userData.address,
                 avatarUrl: userData.avatarUrl,
             };
-            session.commitTransaction();
             return res
                 .status(201)
                 .json(
                     new ApiResponse(201, resUser, "User successfully created")
                 );
         } catch (error) {
+            console.error("Failed to create user " + error);
             await session.abortTransaction();
-            if (publicId) deleteFromCloudinary(publicId);
+            if (publicId) await deleteFromCloudinary(publicId);
             throw new ApiError(500, "Failed to created user");
         } finally {
-            await session.endSession();
+            session.endSession();
         }
     }
 );
@@ -394,7 +386,7 @@ const changePassword = asyncHandler(
         if (!user) {
             throw new ApiError(404, "User not found");
         }
-
+        console.log(req.body);
         const { oldPassword, newPassword } = req.body;
         const zodResult = updatePasswordZodSchema.safeParse({
             oldPassword,
@@ -437,6 +429,21 @@ const changePassword = asyncHandler(
     }
 );
 
+const getOrderHistory = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    if (!isValidObjectId(userId)) {
+        throw new ApiError(400, "Invalid Object id");
+    }
+
+    const orders = await Order.find({ userId: userId });
+    if (!orders || orders.length === 0) {
+        throw new ApiError(404, "No Orders found");
+    }
+    return res.status(200).json(
+        new ApiResponse(200, orders, "Orders history fetched successfully")
+    )
+})
+
 export {
     changePassword,
     deleteUser,
@@ -446,4 +453,5 @@ export {
     refreshAccessTokenViaRefreshToken,
     registerUser,
     updateUser,
+    getOrderHistory
 };

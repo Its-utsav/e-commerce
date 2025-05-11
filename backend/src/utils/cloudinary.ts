@@ -24,6 +24,7 @@ export const cloudinaryUpload = async (localPath: string) => {
             resource_type: "auto",
         });
         deleteFromLocal(localPath);
+        console.log("cloudinary upload res", uploadRes)
         return uploadRes;
     } catch (error) {
         console.log("cloudinary file uplaod failed", error);

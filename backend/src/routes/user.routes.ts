@@ -8,13 +8,14 @@ import {
     refreshAccessTokenViaRefreshToken,
     registerUser,
     updateUser,
+    getOrderHistory
 } from "../controllers/user.controller";
 import { verifyUser } from "../middleware/auth.middleware";
 import { formData, upload } from "../middleware/multer.middleware";
 
 const router = Router();
 
-router.route("/").get();
+
 router.route("/register").post(upload.single("avatar"), registerUser);
 router.route("/login").post(formData, loginUser);
 router.use(verifyUser);
@@ -28,6 +29,6 @@ router
     .get(getUserInfo)
     .patch(upload.single("avatar"), updateUser)
     .delete(deleteUser);
-router.route("/me/password").post(changePassword);
-
+router.route("/me/password").patch(formData, changePassword);
+router.route("/orderHistory").get(getOrderHistory);
 export default router;
