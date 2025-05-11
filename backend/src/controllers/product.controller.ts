@@ -110,12 +110,13 @@ const getAllProducts = asyncHandler(async (req: Request, res: Response) => {
     };
 
     // 3. use paginations
-    const aggregate: Aggregate<ProductDocument[]> = Product.aggregate(pipeline);
+    // const aggregate: Aggregate<ProductDocument[]> = await Product.aggregatePaginate(Product.aggregate(pipeline), options);
 
-    const allProducts: AggregatePaginateResult<ProductDocument> = await (
-        aggregate as any
-    ).aggregatePaginate(options);
+    // const allProducts: AggregatePaginateResult<ProductDocument> = await (
+    //     aggregate as any
+    // ).aggregatePaginate(options);
 
+    const allProducts = await Product.aggregatePaginate(Product.aggregate(pipeline), options);
     // 4. send response
 
     return res
@@ -131,7 +132,8 @@ const getAllProducts = asyncHandler(async (req: Request, res: Response) => {
 
 const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
     const productId = req.params.productId;
-    const zodResult = searchProductByIdZodSchema.safeParse(productId);
+    const zodResult = searchProductByIdZodSchema.safeParse({ id: productId });
+    console.log(zodResult.data);
 
     if (!zodResult.success) {
         const error = zodResult.error.errors.map((e) => e.message).join(", ");
@@ -158,7 +160,7 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
                         $project: {
                             username: 1,
                             avatarUrl: 1,
-                            role: 1,
+
                         },
                     },
                 ],
@@ -185,7 +187,7 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
         .json(
             new ApiResponse(
                 200,
-                product,
+                product[0],
                 "Product Data fetched data successfully"
             )
         );

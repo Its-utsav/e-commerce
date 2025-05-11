@@ -61,6 +61,7 @@ export const deleteFromCloudinary = async (publicIds: string | string[]) => {
         }
     } catch (error) {
         // return null;
+        console.log(error);
         throw new ApiError(500, "Unable to delete");
     }
 };

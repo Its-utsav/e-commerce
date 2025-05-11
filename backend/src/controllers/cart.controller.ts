@@ -90,46 +90,80 @@ const addProductToTheCart = asyncHandler(
         const userId = req.user?._id;
         const cartInfo = await Cart.findOne({ userId });
 
-        if (cartInfo) {
-            // CHECK for the duplicat product entry
-            const existingProductInCart = cartInfo.products.findIndex(
-                (item) => item.productId.toString() === productId
-            );
+        // NO cart
+        if (!cartInfo) {
+            console.log("Not in cart")
 
-            // -1 is truthy value than why i check
-            if (existingProductInCart == -1) {
-                cartInfo.products[existingProductInCart].quantity += quantity;
-            } else {
-                cartInfo.products.push({
-                    productId: new mongoose.Types.ObjectId(productId),
-                    quantity: quantity,
-                });
+            const newCart = await Cart.create({
+                userId,
+                products: [
+                    {
+                        productId: new mongoose.Types.ObjectId(productId),
+                        quantity: quantity,
+                    },
+                ],
+            });
+
+            if (!newCart) {
+                throw new ApiError(500, "Internal server error");
             }
-            const updatedCart = await cartInfo?.save(); // null check
+
             return res
-                .status(200)
+                .status(201)
                 .json(
-                    new ApiResponse(200, updatedCart, "cart update sucessfully")
+                    new ApiResponse(201, newCart, "Cart created successfully")
                 );
         }
-        // No cart
-        const newCart = await Cart.create({
-            userId,
-            products: [
-                {
-                    productId: new mongoose.Types.ObjectId(productId),
-                    quantity: quantity,
-                },
-            ],
-        });
 
-        if (!newCart) {
-            throw new ApiError(500, "Internal server error");
+        // CHECK for the duplicat product entry
+        // index for if product in already in cart
+        // -1 if not -> we have to add to product in cart
+        const existingProductInCart = cartInfo.products.findIndex(
+            (item) => item.productId.toString() === productId
+        );
+
+
+        console.log("Already in cart", cartInfo, existingProductInCart)
+        let updatedCart;
+        // -1 is truthy value than why i check
+        if (existingProductInCart == -1) {
+            // Not in cart product
+            updatedCart = await Cart.findOneAndUpdate(
+                { userId: userId },
+                {
+                    $push: {
+                        products: {
+                            productId: new mongoose.Types.ObjectId(productId),
+                            quantity,
+                        },
+                    },
+                },
+                {
+                    new: true,
+                }
+            );
+        } else {
+            // Already in cart
+            updatedCart = await Cart.findOneAndUpdate(
+                { userId: userId, "products.productId": productId },
+                {
+                    $set: {
+                        "products.$.quantity": quantity,
+                    },
+                },
+                {
+                    new: true,
+                }
+            );
+        }
+
+        if (!updatedCart) {
+            throw new ApiError(500, "Failed to update cart");
         }
 
         return res
-            .status(201)
-            .json(new ApiResponse(201, newCart, "Cart creaated successfully"));
+            .status(200)
+            .json(new ApiResponse(200, updatedCart, "cart update sucessfully"));
     }
 );
 

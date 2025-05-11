@@ -7,10 +7,11 @@ import {
     updateProductQuanity,
 } from "../controllers/cart.controller";
 import { verifyUser } from "../middleware/auth.middleware";
+import { formData } from "../middleware/multer.middleware";
 
 const router = Router();
 
-router.use(verifyUser);
+router.use(verifyUser, formData);
 router.route("/me").get(getCartDetails);
 router.route("/me/items").post(addProductToTheCart);
 router

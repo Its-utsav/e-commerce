@@ -58,7 +58,7 @@ export const addItemInToCartZodSchema = z
             required_error: "Product Id is required",
             invalid_type_error: "Product Id must be string",
         }),
-        quantity: z
+        quantity: z.coerce
             .number({
                 required_error: "Quantity is required",
                 invalid_type_error: "Quantity must be number",

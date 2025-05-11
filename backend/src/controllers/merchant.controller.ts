@@ -86,7 +86,7 @@ const updateProductDetails = asyncHandler(
             zodResult.data;
 
         const zodResultProductId = searchProductByIdZodSchema.safeParse(
-            req.params.productId
+            { id: req.params.productId }
         );
 
         if (!zodResultProductId.success) {
@@ -154,13 +154,19 @@ const updateProductDetails = asyncHandler(
             const filePaths = files.map((file) => file.path);
             const urls = await cloudinaryUploadMany(filePaths);
             if (urls) product.imageUrls = urls;
+            updateStatus = true;
             // delete old images
             if (oldUrls !== undefined) {
                 const publicIds = oldUrls.filter((oldUrl: string) =>
                     getPublicIdByUrl(oldUrl)
                 );
-                await deleteFromCloudinary(publicIds);
+                if (publicIds.length > 0) await deleteFromCloudinary(publicIds);
             }
+        }
+        if (!updateStatus) {
+            return res.status(200).json(
+                new ApiResponse(200, product, "Nothing to update product")
+            )
         }
         await product.save({ validateBeforeSave: false });
         const updatedProduct = await Product.findById(id);
@@ -178,7 +184,7 @@ const updateProductDetails = asyncHandler(
 
 const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
     const zodResultProductId = searchProductByIdZodSchema.safeParse(
-        req.params.productId
+        { id: req.params.productId }
     );
 
     if (!zodResultProductId.success) {
@@ -207,6 +213,7 @@ const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
     }
 
     try {
+        sessions.startTransaction();
         // delete from cart , order , product
         // Delete from all carts
         await Cart.updateMany(

@@ -25,7 +25,7 @@ interface ICartData {
     updatedAt: Date;
 }
 
-interface ICartDocument extends ICartData, Document<Types.ObjectId> {}
+interface ICartDocument extends ICartData, Document<Types.ObjectId> { }
 
 const cartSchema = new Schema<
     ICartDocument,
@@ -48,14 +48,17 @@ const cartSchema = new Schema<
         },
         products: [
             {
-                type: Schema.Types.ObjectId,
-                ref: "Product",
-                required: true,
+                productId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Product",
+                    required: true,
+                },
                 quantity: {
                     type: Number,
                     required: true,
                     min: 1,
                 },
+                _id: false
             },
         ],
         totalItems: {
@@ -79,17 +82,19 @@ cartSchema.methods.calculateTotal = async function (): Promise<totalAndQty> {
             qty: 0,
         };
     }
-    // fetch data fro all products
+    // fetch data for all products
     // 1. store the all product ids
     //  we use $in operator
     const productIds = product.map((item) => item.productId);
+
     const products: ProductDocument[] = await Product.find({
         _id: { $in: productIds },
     })
         .select("finalPrice")
         .lean()
         .exec();
-
+    console.table([this.totalItems, this.amount]);
+    console.table([productIds, products]);
     // store the price and their ids(along)
     const productPrice: { [id: string]: number } = {};
 
@@ -114,21 +119,13 @@ cartSchema.methods.calculateTotal = async function (): Promise<totalAndQty> {
     };
 };
 
-cartSchema.pre("save", async function (next) {
+cartSchema.pre("save", async function () {
     const { qty, total } = await this.calculateTotal();
-    if (
-        this.isModified("totalItems") ||
-        this.amount !== total ||
-        this.totalItems !== qty ||
-        this.isModified("products")
-    ) {
-        this.amount = total;
-        this.totalItems = qty;
-        await this.save();
-        next();
-    }
-    next();
+    console.log("just run calculateTotal")
+    this.amount = total;
+    this.totalItems = qty;
 });
+
 
 const Cart = model("Cart", cartSchema);
 export default Cart;

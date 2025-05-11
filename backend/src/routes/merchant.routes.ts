@@ -19,7 +19,7 @@ import { upload } from "../middleware/multer.middleware";
 const router = Router();
 
 router.use(verifyUser, merchantOnly);
-router.route("/me").get(getUserInfo).post(upload.single("avatar"), updateUser);
+router.route("/me").get(getUserInfo).patch(upload.single("avatar"), updateUser);
 
 router
     .route("/products")
@@ -28,7 +28,7 @@ router
 router
     .route("/products/:productId")
     .get(getInfoOfProduct)
-    .patch(updateProductDetails)
+    .patch(upload.array("productImg", 5), updateProductDetails)
     .delete(deleteProduct);
 
 router.route("/orders").get(getMerchantAllOrdersDetails);

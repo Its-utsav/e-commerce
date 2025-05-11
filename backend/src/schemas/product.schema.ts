@@ -6,29 +6,29 @@ export const createProductZodSchema = z.object({
         message: "Product name is required",
     }),
     imageUrls: z
-        .array(z.string())
+        .array(z.string().optional())
         .max(5, {
             message: "You can't upload more than 5 photos",
-        })
-        .optional(),
+        }).optional(),
+
     description: z
         .string()
         .min(5, "Product description must have minimum 5 characters")
         .max(2000, "Product description can have maximum 2000 characters"),
-    price: z
+    price: z.coerce
         .number({
             required_error: "Product price is required",
             invalid_type_error: "Product price must be a number",
         })
         .min(0, { message: "Product price can not be less than zero (0)." }),
-    stock: z
+    stock: z.coerce
         .number({
             required_error: "Product stock is required",
             invalid_type_error: "Product stock must be a number",
         })
         .int({ message: "Product stock must be an integer" })
         .min(0, { message: "Product stock can not be less than zero (0)." }),
-    discount: z
+    discount: z.coerce
         .number({
             invalid_type_error: "Product discound must be a number",
         })
