@@ -9,7 +9,8 @@ export const createProductZodSchema = z.object({
         .array(z.string().optional())
         .max(5, {
             message: "You can't upload more than 5 photos",
-        }).optional(),
+        })
+        .optional(),
 
     description: z
         .string()

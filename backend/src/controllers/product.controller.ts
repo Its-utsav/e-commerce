@@ -1,11 +1,6 @@
 import { Request, Response } from "express";
-import mongoose, {
-    Aggregate,
-    AggregatePaginateResult,
-    PaginateOptions,
-    PipelineStage,
-} from "mongoose";
-import Product, { ProductDocument } from "../model/product.model";
+import mongoose, { PaginateOptions, PipelineStage } from "mongoose";
+import Product from "../model/product.model";
 import {
     productFindQuery,
     productFindQueryZodSchema,
@@ -116,7 +111,10 @@ const getAllProducts = asyncHandler(async (req: Request, res: Response) => {
     //     aggregate as any
     // ).aggregatePaginate(options);
 
-    const allProducts = await Product.aggregatePaginate(Product.aggregate(pipeline), options);
+    const allProducts = await Product.aggregatePaginate(
+        Product.aggregate(pipeline),
+        options
+    );
     // 4. send response
 
     return res
@@ -160,7 +158,6 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
                         $project: {
                             username: 1,
                             avatarUrl: 1,
-
                         },
                     },
                 ],
