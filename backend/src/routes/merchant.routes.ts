@@ -15,12 +15,16 @@ import { getUserInfo, updateUser } from "../controllers/user.controller";
 import { verifyUser } from "../middleware/auth.middleware";
 import merchantOnly from "../middleware/merchant.middleware";
 import { upload } from "../middleware/multer.middleware";
+import { merchantLimiter, userLimiter } from "../utils/rateLimiter";
 
 const router = Router();
 
 router.use(verifyUser, merchantOnly);
-router.route("/me").get(getUserInfo).patch(upload.single("avatar"), updateUser);
-
+router
+    .route("/me")
+    .get(getUserInfo)
+    .patch(userLimiter, upload.single("avatar"), updateUser);
+router.use(merchantLimiter);
 router
     .route("/products")
     .post(upload.array("productImg", 5), createNewProduct)

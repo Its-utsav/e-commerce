@@ -43,9 +43,9 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
                             imageUrls: 1,
                             name: 1,
                             sellerId: 1,
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             },
         },
         {

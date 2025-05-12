@@ -21,7 +21,7 @@ interface ICartData {
     updatedAt: Date;
 }
 
-interface ICartDocument extends ICartData, Document<Types.ObjectId> { }
+interface ICartDocument extends ICartData, Document<Types.ObjectId> {}
 
 const cartSchema = new Schema<
     ICartDocument,

@@ -8,10 +8,11 @@ import {
 } from "../controllers/order.controller";
 import { verifyUser } from "../middleware/auth.middleware";
 import { formData } from "../middleware/multer.middleware";
+import { orderLimiter } from "../utils/rateLimiter";
 
 const router = Router();
 
-router.use(verifyUser, formData);
+router.use(orderLimiter, verifyUser, formData);
 
 router.route("/").get(getOrderHistoryDetails).post(placeNewOrder);
 router.route("/:orderId").get(getOrderDetails);

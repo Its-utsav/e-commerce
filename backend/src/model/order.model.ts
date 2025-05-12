@@ -7,7 +7,7 @@ import {
     Types,
 } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
-interface OrderMethods { }
+interface OrderMethods {}
 
 interface IProductItems {
     productId: Types.ObjectId;
@@ -28,8 +28,8 @@ export interface IOrderData {
 
 export interface OrderDocument
     extends IOrderData,
-    Document<Types.ObjectId>,
-    OrderMethods { }
+        Document<Types.ObjectId>,
+        OrderMethods {}
 
 const orderSchema = new Schema<
     OrderDocument,
@@ -83,7 +83,7 @@ const orderSchema = new Schema<
             enum: ["PENDING", "COMPLETED"],
             default: "PENDING",
             required: true,
-        }
+        },
     },
     {
         timestamps: true,
@@ -92,6 +92,6 @@ const orderSchema = new Schema<
 orderSchema.plugin(mongooseAggregatePaginate);
 interface orderModel
     extends Model<OrderDocument>,
-    AggregatePaginateModel<OrderDocument> { }
+        AggregatePaginateModel<OrderDocument> {}
 const Order = model<OrderDocument, orderModel>("Order", orderSchema);
 export default Order;

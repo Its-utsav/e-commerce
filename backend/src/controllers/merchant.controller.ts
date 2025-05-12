@@ -264,10 +264,12 @@ const getMerchantAllOrdersDetails = asyncHandler(
         // find the all order whose seller is current merchant
 
         // TODO FIX IT
-        const allProductsId = await Product.find({ sellerId: req.user?._id }).select("_id").lean();
+        const allProductsId = await Product.find({ sellerId: req.user?._id })
+            .select("_id")
+            .lean();
         const orders = await Order.find({
-            'products.productId': {
-                $in: allProductsId
+            "products.productId": {
+                $in: allProductsId,
             },
         });
 
@@ -321,14 +323,16 @@ const updateOrderStatus = asyncHandler(
         const orderId = req.params.orderId;
         // find the order -> whose seller is current merchant
         // -> update in proggress directions
-        const allProductsId = await Product.find({ sellerId: req.user?._id }).select("_id").lean();
+        const allProductsId = await Product.find({ sellerId: req.user?._id })
+            .select("_id")
+            .lean();
         const order = await Order.findOne({
             _id: new mongoose.Types.ObjectId(orderId),
             "products.productId": {
-                $in: allProductsId
+                $in: allProductsId,
             },
         });
-        console.log(order)
+        console.log(order);
         if (!order) {
             throw new ApiError(400, "Unable to find order");
         }

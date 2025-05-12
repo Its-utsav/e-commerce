@@ -6,7 +6,7 @@ import mongoose, {
     PipelineStage,
     Types,
 } from "mongoose";
-import { } from "mongoose-aggregate-paginate-v2";
+import {} from "mongoose-aggregate-paginate-v2";
 import Cart from "../model/cart.model";
 import Order, { OrderDocument } from "../model/order.model";
 import Product from "../model/product.model";

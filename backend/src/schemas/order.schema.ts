@@ -19,7 +19,8 @@ export const createOrderInputZodSchema = z.object({
     // Multiple orders
     items: z
         .array(createOrderItemInputZodSchema)
-        .min(1, { message: "An Order have atleast one product" }).optional(),
+        .min(1, { message: "An Order have atleast one product" })
+        .optional(),
     paymentMethod: z.enum(["UPI", "COD", "STRIPE", "RAZORPAY"], {
         required_error: "Payment method is required",
         invalid_type_error: "Invalid payment method",
