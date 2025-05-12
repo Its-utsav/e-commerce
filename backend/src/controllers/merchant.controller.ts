@@ -1,27 +1,27 @@
-import { Response, Request } from "express";
-import asyncHandler from "../utils/asyncHandler";
+import { Request, Response } from "express";
+import mongoose, { isValidObjectId } from "mongoose";
+import Cart from "../model/cart.model";
+import Order from "../model/order.model";
+import Product from "../model/product.model";
+import {
+    updateOrderStatusType,
+    updateOrderStatusZodSchema,
+} from "../schemas/order.schema";
 import {
     createProductType,
     createProductZodSchema,
-    updateProductDetailsZodSchema,
-    updateProductDetails,
     searchProductByIdZodSchema,
+    updateProductDetails,
+    updateProductDetailsZodSchema,
 } from "../schemas/product.schema";
 import ApiError from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
+import asyncHandler from "../utils/asyncHandler";
 import {
     cloudinaryUploadMany,
     deleteFromCloudinary,
     getPublicIdByUrl,
 } from "../utils/cloudinary";
-import Product from "../model/product.model";
-import mongoose, { isValidObjectId } from "mongoose";
-import Cart from "../model/cart.model";
-import Order from "../model/order.model";
-import {
-    updateOrderStatusType,
-    updateOrderStatusZodSchema,
-} from "../schemas/order.schema";
 
 const createNewProduct = asyncHandler(
     async (req: Request<{}, {}, createProductType>, res: Response) => {
@@ -85,9 +85,9 @@ const updateProductDetails = asyncHandler(
         let { description, discount, price, name, stock, imageUrls } =
             zodResult.data;
 
-        const zodResultProductId = searchProductByIdZodSchema.safeParse(
-            { id: req.params.productId }
-        );
+        const zodResultProductId = searchProductByIdZodSchema.safeParse({
+            id: req.params.productId,
+        });
 
         if (!zodResultProductId.success) {
             const error = zodResultProductId.error.errors
@@ -164,9 +164,11 @@ const updateProductDetails = asyncHandler(
             }
         }
         if (!updateStatus) {
-            return res.status(200).json(
-                new ApiResponse(200, product, "Nothing to update product")
-            )
+            return res
+                .status(200)
+                .json(
+                    new ApiResponse(200, product, "Nothing to update product")
+                );
         }
         await product.save({ validateBeforeSave: false });
         const updatedProduct = await Product.findById(id);
@@ -183,9 +185,9 @@ const updateProductDetails = asyncHandler(
 );
 
 const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
-    const zodResultProductId = searchProductByIdZodSchema.safeParse(
-        { id: req.params.productId }
-    );
+    const zodResultProductId = searchProductByIdZodSchema.safeParse({
+        id: req.params.productId,
+    });
 
     if (!zodResultProductId.success) {
         const error = zodResultProductId.error.errors
@@ -366,9 +368,9 @@ const updateOrderStatus = asyncHandler(
 
 export {
     createNewProduct,
-    updateProductDetails,
     deleteProduct,
     getMerchantAllOrdersDetails,
     getMerchantOrdersDetails,
     updateOrderStatus,
+    updateProductDetails,
 };
