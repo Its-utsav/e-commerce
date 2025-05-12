@@ -92,7 +92,7 @@ const addProductToTheCart = asyncHandler(
 
         // NO cart
         if (!cartInfo) {
-            console.log("Not in cart")
+            // console.log("Not in cart");
 
             const newCart = await Cart.create({
                 userId,
@@ -122,8 +122,7 @@ const addProductToTheCart = asyncHandler(
             (item) => item.productId.toString() === productId
         );
 
-
-        console.log("Already in cart", cartInfo, existingProductInCart)
+        // console.log("Already in cart", cartInfo, existingProductInCart);
         let updatedCart;
         // -1 is truthy value than why i check
         if (existingProductInCart == -1) {
@@ -160,6 +159,12 @@ const addProductToTheCart = asyncHandler(
         if (!updatedCart) {
             throw new ApiError(500, "Failed to update cart");
         }
+
+        // If work , don't touch it
+
+        updatedCart.calculateTotalAndUpdateQuantity();
+        updatedCart.totalItems = updatedCart.products.length;
+        await updatedCart.save(); // Save changes
 
         return res
             .status(200)
@@ -248,7 +253,7 @@ const deleteProductFromCart = asyncHandler(
         );
 
         if (updatedCart.modifiedCount === 0) {
-            throw new ApiError(404, "Prodcut not found in cart");
+            throw new ApiError(404, "Product not found in cart");
         }
         return res
             .status(200)

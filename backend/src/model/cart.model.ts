@@ -2,12 +2,8 @@ import mongoose, { model, Schema, Document, Model, Types } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 import Product, { ProductDocument } from "./product.model";
 
-interface totalAndQty {
-    total: number;
-    qty: number;
-}
 interface ICartMethods {
-    calculateTotal(): Promise<totalAndQty>;
+    calculateTotalAndUpdateQuantity(): Promise<void>;
 }
 
 interface ICartProductItem {
@@ -58,7 +54,7 @@ const cartSchema = new Schema<
                     required: true,
                     min: 1,
                 },
-                _id: false
+                _id: false,
             },
         ],
         totalItems: {
@@ -73,59 +69,55 @@ const cartSchema = new Schema<
 );
 cartSchema.plugin(mongooseAggregatePaginate);
 
-cartSchema.methods.calculateTotal = async function (): Promise<totalAndQty> {
-    const product = this.products;
-    // empty cart
-    if (!product || product.length == 0) {
-        return {
-            total: 0,
-            qty: 0,
-        };
-    }
-    // fetch data for all products
-    // 1. store the all product ids
-    //  we use $in operator
-    const productIds = product.map((item) => item.productId);
-
-    const products: ProductDocument[] = await Product.find({
-        _id: { $in: productIds },
-    })
-        .select("finalPrice")
-        .lean()
-        .exec();
-    console.table([this.totalItems, this.amount]);
-    console.table([productIds, products]);
-    // store the price and their ids(along)
-    const productPrice: { [id: string]: number } = {};
-
-    products.forEach((product) => {
-        if (product._id && typeof product.finalPrice === "number") {
-            productPrice[product._id.toString()] = product.finalPrice;
+cartSchema.methods.calculateTotalAndUpdateQuantity =
+    async function (): Promise<void> {
+        const product = this.products;
+        // empty cart
+        if (!product || product.length == 0) {
+            this.amount = 0;
+            this.totalItems = 0;
         }
-    });
-    let totalQty = 0; // count the total quantity
-    // iteraing on product  and we will get final price by multiply by quantity
-    let total = product.reduce((sum, item) => {
-        // get price by product id from productPrice object
-        const price = productPrice[item.productId.toString()] || 0; // play safe
-        const qty = item.quantity || 0;
-        totalQty += qty;
-        return sum + price * qty;
-    }, 0);
+        // fetch data for all products
+        // 1. store the all product ids
+        //  we use $in operator
+        const productIds = product.map((item) => item.productId);
 
-    return {
-        total: total,
-        qty: totalQty,
+        const products: ProductDocument[] = await Product.find({
+            _id: { $in: productIds },
+        })
+            .select("finalPrice")
+            .lean()
+            .exec();
+
+        // console.table([this.totalItems, this.amount]);
+        // console.table([productIds, products]);
+
+        // store the price and their ids(along)
+        const productPrice: { [id: string]: number } = {};
+
+        products.forEach((product) => {
+            if (product._id && typeof product.finalPrice === "number") {
+                productPrice[product._id.toString()] = product.finalPrice;
+            }
+        });
+        let totalQty = 0; // count the total quantity
+        // iteraing on product  and we will get final price by multiply by quantity
+        const total = product.reduce((sum, item) => {
+            // get price by product id from productPrice object
+            const price = productPrice[item.productId.toString()] || 0; // play safe
+            const qty = item.quantity || 0;
+            totalQty += qty;
+            return sum + price * qty;
+        }, 0);
+        this.amount = total;
+        this.totalItems = totalQty;
     };
-};
 
-cartSchema.pre("save", async function () {
-    const { qty, total } = await this.calculateTotal();
-    console.log("just run calculateTotal")
-    this.amount = total;
-    this.totalItems = qty;
+cartSchema.pre("save", async function (next) {
+    console.log("Pre hook run", this);
+    await this.calculateTotalAndUpdateQuantity();
+    next();
 });
-
 
 const Cart = model("Cart", cartSchema);
 export default Cart;
