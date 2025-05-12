@@ -33,6 +33,6 @@ router
 
 router.route("/orders").get(getMerchantAllOrdersDetails);
 router.route("/orders/:orderId").get(getMerchantOrdersDetails);
-router.route("/orders/status/:orderId").get(updateOrderStatus);
+router.route("/orders/status/:orderId").patch(updateOrderStatus);
 
 export default router;

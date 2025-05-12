@@ -262,11 +262,12 @@ const getMerchantAllOrdersDetails = asyncHandler(
     async (req: Request, res: Response) => {
         // May be we can use pagination -> for better query
         // find the all order whose seller is current merchant
+
+        // TODO FIX IT
+        const allProductsId = await Product.find({ sellerId: req.user?._id }).select("_id").lean();
         const orders = await Order.find({
-            products: {
-                $elemMatch: {
-                    _id: req.user?._id,
-                },
+            'products.productId': {
+                $in: allProductsId
             },
         });
 
@@ -320,17 +321,20 @@ const updateOrderStatus = asyncHandler(
         const orderId = req.params.orderId;
         // find the order -> whose seller is current merchant
         // -> update in proggress directions
+        const allProductsId = await Product.find({ sellerId: req.user?._id }).select("_id").lean();
         const order = await Order.findOne({
             _id: new mongoose.Types.ObjectId(orderId),
-            products: {
-                $elemMatch: {
-                    _id: req.user?._id,
-                },
+            "products.productId": {
+                $in: allProductsId
             },
         });
-
+        console.log(order)
         if (!order) {
             throw new ApiError(400, "Unable to find order");
+        }
+
+        if (order.paymentStatus === "PENDING") {
+            throw new ApiError(400, "Payment panding .");
         }
 
         if (order.status === "CANCELLED") {

@@ -21,6 +21,7 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
     /* 
         - SOME PRODUCT INFO
         - SOME USER INFO 
+        TODO -> fix response
     */
     const allCarts = await Cart.aggregate([
         {
@@ -32,6 +33,19 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
                 localField: "products.productId", // my filed
                 foreignField: "_id", // product collection -> _id
                 as: "productInfo",
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 1,
+                            finalPrice: 1,
+                            originalPrice: 1,
+                            description: 1,
+                            imageUrls: 1,
+                            name: 1,
+                            sellerId: 1,
+                        }
+                    }
+                ]
             },
         },
         {
@@ -40,7 +54,7 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
         {
             $lookup: {
                 from: "user", // where
-                localField: "products.sellerId", // my filed
+                localField: "productInfo.sellerId", // my filed
                 foreignField: "_id", // product collection -> _id
                 as: "sellerInfo",
             },

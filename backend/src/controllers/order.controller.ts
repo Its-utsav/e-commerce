@@ -6,7 +6,7 @@ import mongoose, {
     PipelineStage,
     Types,
 } from "mongoose";
-import {} from "mongoose-aggregate-paginate-v2";
+import { } from "mongoose-aggregate-paginate-v2";
 import Cart from "../model/cart.model";
 import Order, { OrderDocument } from "../model/order.model";
 import Product from "../model/product.model";
@@ -37,7 +37,7 @@ const placeNewOrder = asyncHandler(
         // If i recevied the productId and quantity -> than it will became our order
 
         const userId = req.user?._id;
-
+        console.log(req.body);
         const zodStatus = createOrderInputZodSchema.safeParse(req.body);
         if (!zodStatus.success) {
             const error = zodStatus.error.errors
@@ -156,7 +156,11 @@ const placeNewOrder = asyncHandler(
             });
 
             // - empty cart
-            if (!cleanOrderData || cleanOrderData.items.length === 0) {
+            if (
+                !cleanOrderData ||
+                !cleanOrderData.items ||
+                cleanOrderData.items.length === 0
+            ) {
                 const clearedCart = await Cart.findOneAndUpdate(
                     { userId },
                     {
@@ -169,7 +173,7 @@ const placeNewOrder = asyncHandler(
                 }
             }
 
-            session.commitTransaction();
+            await session.commitTransaction();
             return res
                 .status(201)
                 .json(
@@ -253,8 +257,8 @@ const getOrderDetails = asyncHandler(async (req: Request, res: Response) => {
     const pipeline: PipelineStage[] = [
         {
             $match: {
-                userId,
-                _id: orderId,
+                _id: new mongoose.Types.ObjectId(orderId),
+                userId: new mongoose.Types.ObjectId(userId),
             },
         },
         {
@@ -270,6 +274,10 @@ const getOrderDetails = asyncHandler(async (req: Request, res: Response) => {
         },
     ];
     const ordersOrderDocument = await Order.aggregate(pipeline);
+
+    if (!ordersOrderDocument || ordersOrderDocument.length === 0) {
+        throw new ApiError(404, "No Order found");
+    }
     return res
         .status(200)
         .json(
@@ -368,9 +376,16 @@ const makeAPayment = asyncHandler(async (req: Request, res: Response) => {
 
     const orderDetails = await Order.findById(orderId);
 
-    if (orderDetails?.userId !== userId) {
+    if (!orderDetails) {
+        throw new ApiError(404, "No Order found");
+    }
+    console.log(orderDetails?.userId !== userId, orderDetails?.userId, userId);
+
+    if (orderDetails?.userId.toString() !== userId?.toString()) {
         throw new ApiError(401, "You make payment of other's order");
     }
+    orderDetails.paymentStatus = "COMPLETED";
+    await orderDetails.save();
     const message = {
         m1: "You have successfully complete the dumy payment",
         m2: "LOL :)",
