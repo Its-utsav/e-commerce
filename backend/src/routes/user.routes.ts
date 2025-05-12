@@ -8,13 +8,12 @@ import {
     refreshAccessTokenViaRefreshToken,
     registerUser,
     updateUser,
-    getOrderHistory
+    getOrderHistory,
 } from "../controllers/user.controller";
 import { verifyUser } from "../middleware/auth.middleware";
 import { formData, upload } from "../middleware/multer.middleware";
 
 const router = Router();
-
 
 router.route("/register").post(upload.single("avatar"), registerUser);
 router.route("/login").post(formData, loginUser);

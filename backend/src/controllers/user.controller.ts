@@ -26,7 +26,6 @@ import {
 
 const registerUser = asyncHandler(
     async (req: Request<{}, {}, createUser>, res: Response) => {
-
         const zodResult = createUserZodSchema.safeParse(req.body);
 
         // any data is missing than stop from here
@@ -53,7 +52,6 @@ const registerUser = asyncHandler(
 
         let uploadUrl: string;
         let publicId: string | undefined;
-
 
         if (req.file) {
             const uploadData = await cloudinaryUpload(req.file?.path);
@@ -439,19 +437,21 @@ const getOrderHistory = asyncHandler(async (req, res) => {
     if (!orders || orders.length === 0) {
         throw new ApiError(404, "No Orders found");
     }
-    return res.status(200).json(
-        new ApiResponse(200, orders, "Orders history fetched successfully")
-    )
-})
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, orders, "Orders history fetched successfully")
+        );
+});
 
 export {
     changePassword,
     deleteUser,
+    getOrderHistory,
     getUserInfo,
     loginUser,
     logoutUser,
     refreshAccessTokenViaRefreshToken,
     registerUser,
     updateUser,
-    getOrderHistory
 };

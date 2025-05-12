@@ -1,4 +1,11 @@
-import mongoose, { AggregatePaginateModel, Document, Model, model, Schema, Types } from "mongoose";
+import mongoose, {
+    AggregatePaginateModel,
+    Document,
+    Model,
+    model,
+    Schema,
+    Types,
+} from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 interface ProductMethods {
@@ -21,9 +28,8 @@ export interface ProductData {
 
 export interface ProductDocument
     extends ProductData,
-    Document<Types.ObjectId>,
-    ProductMethods { }
-
+        Document<Types.ObjectId>,
+        ProductMethods {}
 
 const productSchema = new Schema<
     ProductDocument,
@@ -100,8 +106,8 @@ productSchema.methods.isStockAvailable = function () {
 };
 
 export interface ProductModel
-    extends Model<ProductDocument>, AggregatePaginateModel<ProductDocument> { }
-
+    extends Model<ProductDocument>,
+        AggregatePaginateModel<ProductDocument> {}
 
 const Product = model<ProductDocument, ProductModel>("Product", productSchema);
 

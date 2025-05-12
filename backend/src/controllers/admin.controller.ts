@@ -290,8 +290,8 @@ const getAllOrdersDetails = asyncHandler(async (req, res) => {
 export {
     deleteOrderByAdmin,
     deleteUser,
+    getAllOrdersDetails,
     getAllUsers,
     getUserDeatils,
     updateUserRole,
-    getAllOrdersDetails,
 };
