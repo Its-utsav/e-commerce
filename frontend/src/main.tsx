@@ -8,8 +8,9 @@ import {
   Route,
   RouterProvider,
 } from "react-router";
-
 import { Login, Home, SignUp, NotFound } from "./pages/index.ts";
+import { Provider } from "react-redux";
+import store from "./store/store.ts";
 
 // const Home = lazy(() => import("./pages/Home.tsx"));
 
@@ -33,8 +34,8 @@ const router = createBrowserRouter(
         {/* Base App setup header , footer and outlet */}
         <Route path="*" element={<NotFound />} /> {/* Not Found page */}
         <Route path="" element={<Home />} />
-        <Route path="login" element={<Login />} />
-        <Route path="signup" element={<SignUp />} />
+        <Route path="login" element={<Login />} /> {/*Page for Login*/}
+        <Route path="signup" element={<SignUp />} /> {/*Page for singup*/}
       </Route>
     </>,
   ),
@@ -42,7 +43,9 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
     {/* <App /> */}
   </StrictMode>,
 );
