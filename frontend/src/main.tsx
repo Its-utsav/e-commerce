@@ -1,26 +1,27 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App.tsx";
+import { Provider } from "react-redux";
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
   RouterProvider,
 } from "react-router";
+import App from "./App.tsx";
+import "./index.css";
 import {
-  Login,
+  Cart,
   Home,
-  SignUp,
+  Login,
   NotFound,
   OrderHistory,
-  Cart,
+  Product,
   Profile,
+  SignUp,
 } from "./pages/index.ts";
-import { Provider } from "react-redux";
-import store from "./store/store.ts";
-import Public from "./routing/Public.tsx";
 import Auth from "./routing/Auth.tsx";
+import Public from "./routing/Public.tsx";
+import store from "./store/store.ts";
 
 // const Home = lazy(() => import("./pages/Home.tsx"));
 
@@ -54,6 +55,7 @@ const router = createBrowserRouter(
           <Route path="cart" element={<Cart />} />
           <Route path="profile" element={<Profile />} />
         </Route>
+        <Route path="products/:productId" element={<Product />} />
       </Route>
     </>,
   ),

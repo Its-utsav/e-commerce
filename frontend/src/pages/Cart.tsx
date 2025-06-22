@@ -11,11 +11,10 @@ export default function Cart() {
       .getCartDeatils()
       .then((c) => setCart(c))
       .catch((e) => {
-        console.log(e);
         setErrors(e.message);
       });
   }, []);
-  console.log(cart, errors);
+  // console.log(cart);
   if (errors) {
     return <ErrorCmp value={errors} />;
   }

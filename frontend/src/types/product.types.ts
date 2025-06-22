@@ -19,3 +19,15 @@ export interface ProdcutDetails {
     discountInPrice: number,
     sellerInfo: SellerInfo
 }
+export interface AllProducts {
+    totalProducts: number,
+    limit: number,
+    page: number,
+    totalPages: number,
+    pagingCounter: number | null,
+    hasPrevPage: boolean,
+    hasNextPage: boolean,
+    prevPage: null | boolean,
+    nextPage: null | boolean
+    products: ProdcutDetails[]
+}

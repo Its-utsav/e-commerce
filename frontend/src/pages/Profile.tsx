@@ -11,12 +11,20 @@ export default function Profile() {
   useEffect(() => {
     fetchInfo();
   }, []);
-  console.log(user);
+
   return (
     user && (
-      <div className="h-48">
+      <div>
         <div className="flex flex-col items-center justify-center">
-          {user.avatarUrl && <img src={user.avatarUrl} alt={user.username} />}
+          {user.avatarUrl && (
+            <div>
+              <img
+                className="h-48 rounded-sm"
+                src={user.avatarUrl}
+                alt={`${user.username} profile image`}
+              />
+            </div>
+          )}
           <p className="my-4">username : {user.username}</p>
           <p className="my-4">email : {user.email}</p>
           <p className="my-4">role : {user.role}</p>

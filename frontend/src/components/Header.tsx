@@ -1,10 +1,10 @@
-import { Navigate, NavLink, useNavigate } from "react-router";
-import Container from "./Container";
 import { useDispatch, useSelector } from "react-redux";
+import { NavLink, useNavigate } from "react-router";
+import { logout } from "../features/auth/authSlice";
+import authservice from "../services/auth/auth";
 import type { RootState } from "../store/store";
 import Button from "./Button";
-import authservice from "../services/auth/auth";
-import { login, logout } from "../features/auth/authSlice";
+import Container from "./Container";
 
 function LogOut() {
   const dispatch = useDispatch();

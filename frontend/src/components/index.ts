@@ -1,8 +1,12 @@
+
 import Button from "./Button";
 import Container from "./Container";
 import ErrorCmp from "./ErrorCmp";
 import Footer from "./Footer";
 import Header from "./Header";
 import Input from "./Input";
+import Loading from "./Loading";
+import Product from "./Product";
+import ProductCard from "./ProductCard";
 
-export { Header, Footer, Input, Button, ErrorCmp, Container }
+export { Header, Footer, Input, Button, ErrorCmp, Container, Loading, ProductCard, Product }
