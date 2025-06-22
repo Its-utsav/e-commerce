@@ -6,10 +6,9 @@ class ProductService {
     constructor() {
         const isDev = import.meta.env.DEV;
         this.BASE_URL = isDev ? "/api" : import.meta.env.BACKEND_URL;
-        console.log(this.BASE_URL)
     }
 
-    async getProductsDetails(query: string) {
+    async getProductsDetails(query: string = "") {
         try {
             const res = await fetch(`${this.BASE_URL}/products?${query}`, {
                 headers: {

@@ -10,7 +10,7 @@ class CartService {
 
     async getCartDeatils() {
         try {
-            const res = await fetch(`${this.BASE_URL}/cart/me`, {
+            const res = await fetch(`${this.BASE_URL}/carts/me`, {
                 method: "GET",
                 credentials: "include",
                 headers: {
