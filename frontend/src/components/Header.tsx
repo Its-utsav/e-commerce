@@ -1,3 +1,57 @@
+import { Navigate, NavLink, useNavigate } from "react-router";
+import Container from "./Container";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../store/store";
+import Button from "./Button";
+import authservice from "../services/auth/auth";
+import { login, logout } from "../features/auth/authSlice";
+
+function LogOut() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const handleClick = () => {
+    authservice.logout().then((res) => {
+      if (res) {
+        dispatch(logout());
+        navigate("/");
+      }
+    });
+  };
+  return <Button onClick={handleClick}>Log out</Button>;
+}
+
 export default function Header() {
-  return <div>Header</div>;
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+  const linkStatus = userInfo ? true : false;
+  const navItems = [
+    { name: "Home", path: "/", active: true },
+    { name: "Login", path: "/login", active: !linkStatus },
+    { name: "Singup", path: "/signup", active: !linkStatus },
+    { name: "Cart", path: "/cart", active: linkStatus },
+    { name: "Order History", path: "/orderHistory", active: linkStatus },
+    { name: "Profile", path: "/profile", active: linkStatus },
+  ];
+
+  return (
+    <header>
+      <Container>
+        <nav className="flex items-center justify-between">
+          {navItems.map((item) =>
+            item.active ? (
+              <NavLink
+                to={item.path}
+                key={item.name}
+                className={({ isActive }) =>
+                  `mx-4 ${isActive ? "text-red-300" : ""}`
+                }
+              >
+                {item.name}
+              </NavLink>
+            ) : null,
+          )}
+          {userInfo && <LogOut />}
+        </nav>
+      </Container>
+    </header>
+  );
 }
