@@ -1,8 +1,10 @@
-import Login from "./Login.tsx";
+import Cart from "./Cart.tsx";
 import Home from "./Home.tsx";
-import SignUp from "./SignUp.tsx";
+import Login from "./Login.tsx";
 import NotFound from "./NotFound.tsx";
-
+import OrderHistory from "./OrderHistory.tsx";
+import Profile from "./Profile.tsx";
+import SignUp from "./SignUp.tsx";
 export {
-    Login, Home, SignUp, NotFound
-}
+    Cart, Home, Login, NotFound, OrderHistory, Profile, SignUp
+};

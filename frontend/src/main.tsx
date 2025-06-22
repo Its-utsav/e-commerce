@@ -8,9 +8,19 @@ import {
   Route,
   RouterProvider,
 } from "react-router";
-import { Login, Home, SignUp, NotFound } from "./pages/index.ts";
+import {
+  Login,
+  Home,
+  SignUp,
+  NotFound,
+  OrderHistory,
+  Cart,
+  Profile,
+} from "./pages/index.ts";
 import { Provider } from "react-redux";
 import store from "./store/store.ts";
+import Public from "./routing/Public.tsx";
+import Auth from "./routing/Auth.tsx";
 
 // const Home = lazy(() => import("./pages/Home.tsx"));
 
@@ -34,8 +44,16 @@ const router = createBrowserRouter(
         {/* Base App setup header , footer and outlet */}
         <Route path="*" element={<NotFound />} /> {/* Not Found page */}
         <Route path="" element={<Home />} />
-        <Route path="login" element={<Login />} /> {/*Page for Login*/}
-        <Route path="signup" element={<SignUp />} /> {/*Page for singup*/}
+        <Route element={<Public />}>
+          {/*Routes that are avaiable for all users*/}
+          <Route path="login" element={<Login />} /> {/*Page for Login*/}
+          <Route path="signup" element={<SignUp />} /> {/*Page for singup*/}
+        </Route>
+        <Route element={<Auth />}>
+          <Route path="orderHistory" element={<OrderHistory />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
       </Route>
     </>,
   ),
