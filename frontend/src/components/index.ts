@@ -8,5 +8,7 @@ import Input from "./Input";
 import Loading from "./Loading";
 import Product from "./Product";
 import ProductCard from "./ProductCard";
+import SellerInfo from "./SellerInfo";
+import Slideshow from "./Slideshow";
 
-export { Header, Footer, Input, Button, ErrorCmp, Container, Loading, ProductCard, Product }
+export { Header, Footer, Input, Button, ErrorCmp, Container, Loading, ProductCard, Product, Slideshow, SellerInfo }
