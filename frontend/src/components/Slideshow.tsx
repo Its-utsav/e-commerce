@@ -27,12 +27,17 @@ export default function Slideshow({ imageUrls }: SlideshowProps) {
         <div>
           <img src={url} alt="" />
           <Button
+            type="button"
             onClick={handleNextClick}
             disabled={count === imageUrls.length - 1}
           >
             Next
           </Button>
-          <Button onClick={handlePrevClick} disabled={count === 0}>
+          <Button
+            type="button"
+            onClick={handlePrevClick}
+            disabled={count === 0}
+          >
             Prev
           </Button>
         </div>

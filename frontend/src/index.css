@@ -1,1 +1,6 @@
 @import "tailwindcss";
+@layer {
+  button {
+    @apply cursor-pointer disabled:cursor-not-allowed;
+  }
+}

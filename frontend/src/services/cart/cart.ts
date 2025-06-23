@@ -28,7 +28,25 @@ class CartService {
         }
     }
 
-    // TODO - complete when require ha ha
+    async addProductToTheCart() {
+        try {
+            const res = await fetch(`${this.BASE_URL}/carts/me`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            const responseBody: BackendResponse<CartDeatils> = await res.json();
+            if (!res.ok || !responseBody.success) {
+                throw new Error(responseBody.message || "An unknown error occurred during getCartDeatils.")
+            }
+            return responseBody.data;
+        } catch (error) {
+            console.error(`error :: getCartDeatils :: ${error}`);
+            throw error;
+        }
+    }
 };
 
 const cartService = new CartService();
