@@ -10,14 +10,11 @@ import {
 import ApiError from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import asyncHandler from "../utils/asyncHandler";
+import Product from "../model/product.model";
 
 const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
     // User is already loggdin
     const userId = req.user?._id;
-
-    if (!isValidObjectId(userId)) {
-        throw new ApiError(400, "Invalid user id");
-    }
     /* 
         - SOME PRODUCT INFO
         - SOME USER INFO 
@@ -95,6 +92,22 @@ const addProductToTheCart = asyncHandler(
         }
 
         const { productId, quantity } = zodStatus.data;
+        if (!productId || !quantity) {
+            throw new ApiError(400, "productId and quantity both required");
+        }
+
+        if (!isValidObjectId(productId)) {
+            throw new ApiError(400, "Invalid productId");
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            throw new ApiError(
+                404,
+                "No Product found , possibly invalid product id"
+            );
+        }
+
         // check if their is any cart is available by the user or not ?
         // ------------  YES  ------------
         // Than push product into the products array
@@ -196,6 +209,7 @@ const updateProductQuanity = asyncHandler(
         const zodStatus = cartItemZod.safeParse(req.body);
 
         if (!zodStatus.success) {
+            console.log(req.body);
             const error = zodStatus.error.errors
                 .map((e) => e.message)
                 .join(", ");
@@ -265,16 +279,16 @@ const deleteProductFromCart = asyncHandler(
                 },
             }
         );
-
         if (updatedCart.modifiedCount === 0) {
             throw new ApiError(404, "Product not found in cart");
         }
+        const cart = await Cart.findOne({ userId });
         return res
             .status(200)
             .json(
                 new ApiResponse(
                     200,
-                    updatedCart,
+                    cart,
                     "Product deleted from cart successfully"
                 )
             );

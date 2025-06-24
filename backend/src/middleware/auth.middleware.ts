@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import User from "../model/user.model";
 import ApiError from "../utils/ApiError";
 import asyncHandler from "../utils/asyncHandler";
@@ -33,6 +33,9 @@ const verifyUser = asyncHandler(async (req, _, next) => {
                 401,
                 "Unauthorized request , Invalaid Access token"
             );
+        }
+        if (!isValidObjectId(decodeInfo._id)) {
+            throw new ApiError(400, "Invalid user id");
         }
         const user = await User.findById(decodeInfo._id);
         if (!user) throw new ApiError(404, "User not found");
