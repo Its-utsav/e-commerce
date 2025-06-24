@@ -131,7 +131,7 @@ const getAllProducts = asyncHandler(async (req: Request, res: Response) => {
 const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
     const productId = req.params.productId;
     const zodResult = searchProductByIdZodSchema.safeParse({ id: productId });
-    console.log(zodResult.data);
+    // console.log(zodResult.data);
 
     if (!zodResult.success) {
         const error = zodResult.error.errors.map((e) => e.message).join(", ");
@@ -139,7 +139,7 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
     }
     const { id } = zodResult.data;
 
-    // we have to also get sellor informations
+    // we have to also need sellor informations
 
     const product = await Product.aggregate([
         {
@@ -167,7 +167,7 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
             $unwind: "$sellerInfo",
         },
     ]);
-
+    console.log(product);
     // ONLY for merchant ---------
     /**
      * @todo Complete this
@@ -175,7 +175,7 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
     if (req.user?.role === "MERCHANT" && req.baseUrl.includes("/merchant")) {
     }
 
-    if (!product) {
+    if (!product || product.length === 0) {
         throw new ApiError(404, "Product not found");
     }
 

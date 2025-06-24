@@ -5,7 +5,7 @@ export const createUserZodSchema = z.object({
         message: "Username must be required",
         invalid_type_error: "Username must be string",
     }),
-    avatarUrl: z.string().optional(),
+
     email: z
         .string({
             required_error: "Email must be required",
@@ -44,7 +44,6 @@ export const loginUserZodSchema = z.object({
 export type loginUser = z.infer<typeof loginUserZodSchema>;
 
 export const updateUserZodSchema = z.object({
-    avatarUrl: z.string().optional(),
     address: z
         .string({
             invalid_type_error: "address must contains character and numbers",

@@ -165,8 +165,14 @@ const loginUser = asyncHandler(
         };
         return res
             .status(200)
-            .cookie("refreshToken", refreshToken, options)
-            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, {
+                ...options,
+                maxAge: 10 * 24 * 60 * 60 * 1000, // 10 Days
+            })
+            .cookie("accessToken", accessToken, {
+                ...options,
+                maxAge: 24 * 60 * 60 * 1000, // 1 days
+            })
             .json(new ApiResponse(200, userRes, "User loggedin successfully"));
     }
 );
@@ -306,11 +312,10 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 const updateUser = asyncHandler(
     async (req: Request<{}, {}, updatedUser>, res: Response) => {
-        const { address, avatarUrl } = req.body;
+        const { address } = req.body;
 
         const zodResult = updateUserZodSchema.safeParse({
             address,
-            avatarUrl,
         });
 
         if (!zodResult.success) {
@@ -324,7 +329,9 @@ const updateUser = asyncHandler(
         if (!userId) {
             throw new ApiError(401, "User Id not provided");
         }
-        const user = await User.findById(userId);
+        const user = await User.findById(userId)
+
+            .select("-refreshToken -password -createdAt -updatedAt");
         if (!user) {
             throw new ApiError(404, "User not found");
         }
@@ -355,9 +362,10 @@ const updateUser = asyncHandler(
         if (!updateStatus) {
             return res
                 .status(200)
-                .json(new ApiResponse(200, {}, "Nothing to update"));
+                .json(new ApiResponse(200, user, "Nothing to update"));
         }
-        const updatedData = await user.save({ validateBeforeSave: true });
+
+        const updatedData = await user.save({ validateModifiedOnly: true });
         const userRes = {
             username: updatedData.username,
             email: updatedData.email,
@@ -384,12 +392,10 @@ const changePassword = asyncHandler(
         if (!user) {
             throw new ApiError(404, "User not found");
         }
-        console.log(req.body);
-        const { oldPassword, newPassword } = req.body;
-        const zodResult = updatePasswordZodSchema.safeParse({
-            oldPassword,
-            newPassword,
-        });
+        // console.log(req.body);
+        // const { oldPassword, newPassword } = req.body;
+
+        const zodResult = updatePasswordZodSchema.safeParse(req.body);
 
         if (!zodResult.success) {
             const error = zodResult.error.errors
@@ -397,11 +403,9 @@ const changePassword = asyncHandler(
                 .join(", ");
             throw new ApiError(400, error);
         }
-        const data = zodResult.data;
+        const { oldPassword, newPassword } = zodResult.data;
 
-        const oldPasswordCheckRes = await user.comparePassword(
-            data.oldPassword
-        );
+        const oldPasswordCheckRes = await user.comparePassword(oldPassword);
 
         if (!oldPasswordCheckRes) {
             throw new ApiError(
@@ -410,14 +414,14 @@ const changePassword = asyncHandler(
             );
         }
 
-        const isNewPasswordSame = await user.comparePassword(data.newPassword);
+        const isNewPasswordSame = await user.comparePassword(newPassword);
 
         if (isNewPasswordSame) {
             throw new ApiError(400, "New password is same as old password");
         }
 
         user.password = newPassword;
-        await user.save({ validateBeforeSave: false });
+        await user.save({ validateModifiedOnly: false });
 
         return res
             .status(200)
@@ -429,6 +433,8 @@ const changePassword = asyncHandler(
 
 const getOrderHistory = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
+    if (!userId) throw new ApiError(401, "User Id not provided");
+
     if (!isValidObjectId(userId)) {
         throw new ApiError(400, "Invalid Object id");
     }

@@ -2,7 +2,11 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import globalErrorHandler from "./utils/globalError";
 import { PREFIX_URL } from "./constants";
+import morgan from "morgan";
+
 const app = express();
+
+app.use(morgan("dev"));
 
 app.use(
     express.json({

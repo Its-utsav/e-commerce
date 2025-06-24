@@ -33,7 +33,7 @@ class CartService {
 
     async addProductToTheCart(data: CartProduct) {
         try {
-            const res = await fetch(`${this.BASE_URL}/carts/me`, {
+            const res = await fetch(`${this.BASE_URL}/carts/me/items`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -45,12 +45,12 @@ class CartService {
             if (!res.ok || !responseBody.success) {
                 throw new Error(
                     responseBody.message ||
-                        "An unknown error occurred during getCartDeatils.",
+                        "An unknown error occurred during addProductToTheCart.",
                 );
             }
             return responseBody.data;
         } catch (error) {
-            console.error(`error :: getCartDeatils :: ${error}`);
+            console.error(`error :: addProductToTheCart :: ${error}`);
             throw error;
         }
     }
