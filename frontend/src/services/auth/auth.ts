@@ -25,10 +25,12 @@ class AuthService {
                 },
             });
 
-            const resData: BackendResponse<SignUpDataResponse> = await res.json();
+            const resData: BackendResponse<SignUpDataResponse> =
+                await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
-                    resData.message || "An unknown error occurred during signup.",
+                    resData.message ||
+                        "An unknown error occurred during signup.",
                 );
             }
 
@@ -50,10 +52,12 @@ class AuthService {
                 },
             });
 
-            const resData: BackendResponse<LoginUserResponseData> = await res.json();
+            const resData: BackendResponse<LoginUserResponseData> =
+                await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
-                    resData.message || "An unknown error occurred during login.",
+                    resData.message ||
+                        "An unknown error occurred during login.",
                 );
             }
 
@@ -77,7 +81,8 @@ class AuthService {
             const resData = await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
-                    resData.message || "An unknown error occurred during logout.",
+                    resData.message ||
+                        "An unknown error occurred during logout.",
                 );
             }
 
@@ -101,7 +106,8 @@ class AuthService {
             const resData = await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
-                    resData.message || "An unknown error occurred during refreshToken.",
+                    resData.message ||
+                        "An unknown error occurred during refreshToken.",
                 );
             }
 
@@ -128,10 +134,12 @@ class AuthService {
                 },
             });
 
-            const resData: BackendResponse<GeneralUserResponse> = await res.json();
+            const resData: BackendResponse<GeneralUserResponse> =
+                await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
-                    resData.message || "An unknown error occurred during login.",
+                    resData.message ||
+                        "An unknown error occurred during login.",
                 );
             }
 
@@ -152,10 +160,12 @@ class AuthService {
                     "Content-Type": "application/json",
                 },
             });
-            const resData: BackendResponse<GeneralUserResponse> = await res.json();
+            const resData: BackendResponse<GeneralUserResponse> =
+                await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
-                    resData.message || "An unknown error occurred during changePassword.",
+                    resData.message ||
+                        "An unknown error occurred during changePassword.",
                 );
             }
 
@@ -175,10 +185,12 @@ class AuthService {
                     "Content-Type": "application/json",
                 },
             });
-            const resData: BackendResponse<GeneralUserResponse> = await res.json();
+            const resData: BackendResponse<GeneralUserResponse> =
+                await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
-                    resData.message || "An unknown error occurred during getUserInfo.",
+                    resData.message ||
+                        "An unknown error occurred during getUserInfo.",
                 );
             }
 
@@ -198,10 +210,12 @@ class AuthService {
                     "Content-Type": "application/json",
                 },
             });
-            const resData: BackendResponse<GeneralUserResponse> = await res.json();
+            const resData: BackendResponse<GeneralUserResponse> =
+                await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
-                    resData.message || "An unknown error occurred during getUserInfo.",
+                    resData.message ||
+                        "An unknown error occurred during getUserInfo.",
                 );
             }
 
@@ -211,7 +225,6 @@ class AuthService {
             throw error;
         }
     }
-
 }
 
 const authservice = new AuthService();

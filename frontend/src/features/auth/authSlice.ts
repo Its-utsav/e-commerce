@@ -6,9 +6,9 @@ const userToken = localStorage.getItem("userToken");
 interface UserState {
     userToken: string | null;
     loading: boolean;
-    error?: null | string
+    error?: null | string;
     success: boolean;
-    userInfo: any
+    userInfo: any;
 }
 
 const initialState: UserState = {
@@ -17,7 +17,7 @@ const initialState: UserState = {
     error: null,
     success: false,
     userInfo: null,
-}
+};
 
 const authSlice = createSlice({
     name: "auth",
@@ -26,7 +26,7 @@ const authSlice = createSlice({
         login: (state, action) => {
             localStorage.setItem("user", JSON.stringify(action.payload));
             state.success = true;
-            state.userInfo = action.payload
+            state.userInfo = action.payload;
         },
         logout: (state) => {
             localStorage.removeItem("user");
@@ -34,13 +34,13 @@ const authSlice = createSlice({
             state.error = null;
             state.success = false;
             state.userInfo = null;
-        }
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(loginUser.pending, (state) => {
             state.loading = true;
             state.error = null;
-        })
+        });
     },
 });
 

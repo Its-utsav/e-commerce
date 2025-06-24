@@ -1,4 +1,4 @@
-import type { CartDeatils } from "../../types/cart.types";
+import type { CartDeatils, CartProduct } from "../../types/cart.types";
 import type { BackendResponse } from "../../types/user.types";
 
 class CartService {
@@ -19,7 +19,10 @@ class CartService {
             });
             const responseBody: BackendResponse<CartDeatils> = await res.json();
             if (!res.ok || !responseBody.success) {
-                throw new Error(responseBody.message || "An unknown error occurred during getCartDeatils.")
+                throw new Error(
+                    responseBody.message ||
+                        "An unknown error occurred during getCartDeatils.",
+                );
             }
             return responseBody.data;
         } catch (error) {
@@ -28,7 +31,7 @@ class CartService {
         }
     }
 
-    async addProductToTheCart() {
+    async addProductToTheCart(data: CartProduct) {
         try {
             const res = await fetch(`${this.BASE_URL}/carts/me`, {
                 method: "POST",
@@ -36,10 +39,14 @@ class CartService {
                 headers: {
                     "Content-Type": "application/json",
                 },
+                body: JSON.stringify(data),
             });
             const responseBody: BackendResponse<CartDeatils> = await res.json();
             if (!res.ok || !responseBody.success) {
-                throw new Error(responseBody.message || "An unknown error occurred during getCartDeatils.")
+                throw new Error(
+                    responseBody.message ||
+                        "An unknown error occurred during getCartDeatils.",
+                );
             }
             return responseBody.data;
         } catch (error) {
@@ -47,12 +54,9 @@ class CartService {
             throw error;
         }
     }
-};
+}
 
 const cartService = new CartService();
 
-
 export default cartService;
-export {
-    CartService
-}
+export { CartService };

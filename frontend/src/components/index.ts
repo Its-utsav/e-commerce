@@ -1,4 +1,3 @@
-
 import Button from "./Button";
 import Container from "./Container";
 import ErrorCmp from "./ErrorCmp";
@@ -12,4 +11,17 @@ import ProductCart from "./ProductCart";
 import SellerInfo from "./SellerInfo";
 import Slideshow from "./Slideshow";
 
-export { Header, Footer, Input, Button, ErrorCmp, Container, Loading, ProductCard, Product, Slideshow, SellerInfo, ProductCart }
+export {
+    Header,
+    Footer,
+    Input,
+    Button,
+    ErrorCmp,
+    Container,
+    Loading,
+    ProductCard,
+    Product,
+    Slideshow,
+    SellerInfo,
+    ProductCart,
+};

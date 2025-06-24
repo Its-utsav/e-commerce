@@ -8,7 +8,7 @@ export interface BackendResponse<T> {
 enum USER_ROLE_TYPES {
     ADMIN,
     USER,
-    MERCHANT
+    MERCHANT,
 }
 
 export interface SignUpData {
@@ -16,16 +16,15 @@ export interface SignUpData {
     email: string;
     password: string;
     address?: string;
-    role?: USER_ROLE_TYPES
+    role?: USER_ROLE_TYPES;
 }
 
 export interface SignUpDataResponse {
     username: string;
     email: string;
     address?: string;
-    role?: USER_ROLE_TYPES
+    role?: USER_ROLE_TYPES;
 }
-
 
 export interface LoginUserData {
     email: string;
@@ -33,16 +32,16 @@ export interface LoginUserData {
 }
 
 export interface LoginUserResponseData {
-    username: string,
-    avatarUrl: string,
-    email: string,
-    role: string,
+    username: string;
+    avatarUrl: string;
+    email: string;
+    role: string;
 }
 
 export interface GeneralUserResponse {
-    username: string,
-    avatarUrl?: string,
-    email: string,
-    role: string,
-    address?: string,
+    username: string;
+    avatarUrl?: string;
+    email: string;
+    role: string;
+    address?: string;
 }
