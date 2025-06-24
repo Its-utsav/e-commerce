@@ -1,4 +1,11 @@
-import mongoose, { model, Schema, Document, Model, Types } from "mongoose";
+import mongoose, {
+    AggregatePaginateModel,
+    Document,
+    model,
+    Model,
+    Schema,
+    Types,
+} from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 import Product, { ProductDocument } from "./product.model";
 
@@ -21,7 +28,10 @@ interface ICartData {
     updatedAt: Date;
 }
 
-interface ICartDocument extends ICartData, Document<Types.ObjectId> {}
+interface ICartDocument
+    extends ICartData,
+        ICartMethods,
+        Document<Types.ObjectId> {}
 
 const cartSchema = new Schema<
     ICartDocument,
@@ -119,5 +129,9 @@ cartSchema.pre("save", async function (next) {
     next();
 });
 
-const Cart = model("Cart", cartSchema);
+export interface CartModel
+    extends Model<ICartDocument>,
+        AggregatePaginateModel<ICartDocument> {}
+
+const Cart = model<ICartDocument, CartModel>("Cart", cartSchema);
 export default Cart;

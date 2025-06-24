@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import mongoose, { isValidObjectId } from "mongoose";
 import Cart from "../model/cart.model";
+import Product from "../model/product.model";
 import {
     addItemInCart,
     addItemInToCartZodSchema,
@@ -10,7 +11,6 @@ import {
 import ApiError from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import asyncHandler from "../utils/asyncHandler";
-import Product from "../model/product.model";
 
 const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
     // User is already loggdin
@@ -26,38 +26,73 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
         },
         {
             $lookup: {
-                from: "products", // where
-                localField: "products.productId", // my filed
-                foreignField: "_id", // product collection -> _id
-                as: "productInfo",
-                pipeline: [
-                    {
-                        $project: {
-                            _id: 1,
-                            finalPrice: 1,
-                            originalPrice: 1,
-                            description: 1,
-                            imageUrls: 1,
-                            name: 1,
-                            sellerId: 1,
-                        },
+                from: "products",
+                localField: "products.productId",
+                foreignField: "_id",
+                as: "products",
+            },
+        },
+        {
+            $unwind: "$products",
+        },
+        {
+            $project: {
+                _id: "$_id",
+                amount: "$amount",
+                userId: "$userId",
+                totalItems: "$totalItems",
+                products: {
+                    _id: "$products._id",
+                    name: "$products.name",
+                    description: "$products.description",
+                    originalPrice: "$products.originalPrice",
+                    stock: "$products.stock",
+                    discountInPercentage: "$products.discountInPercentage",
+                    discountInPrice: "$products.discountInPrice",
+                    finalPrice: "$products.finalPrice",
+                    img: {
+                        $arrayElemAt: ["$products.imageUrls", 0],
                     },
-                ],
+                },
             },
         },
-        {
-            $unwind: "$productInfo",
-        },
-        {
-            $lookup: {
-                from: "user", // where
-                localField: "productInfo.sellerId", // my filed
-                foreignField: "_id", // product collection -> _id
-                as: "sellerInfo",
-            },
-        },
-    ]);
 
+        // {
+        //     $lookup: {
+        //         from: "products", // where
+        //         localField: "products.productId", // my filed
+        //         foreignField: "_id", // product collection -> _id
+        //         as: "productInfo",
+        //         // pipeline: [
+        //         //     {
+        //         //         $project: {
+        //         //             _id: 1,
+        //         //             finalPrice: 1,
+        //         //             originalPrice: 1,
+        //         //             description: 1,
+        //         //             imageUrls: 1,
+        //         //             name: 1,
+        //         //             sellerId: 1,
+        //         //         },
+        //         //     },
+        //         // ],
+        //     },
+        // },
+        // {
+        //     $unwind: "$productInfo",
+        // },
+        // {
+        //     $lookup: {
+        //         from: "user", // where
+        //         localField: "productInfo.sellerId", // my filed
+        //         foreignField: "_id", // product collection -> _id
+        //         as: "sellerInfo",
+        //     },
+        // },
+    ]);
+    console.dir(allCarts[0], {
+        depth: "Infinity",
+    });
     if (!allCarts || allCarts.length === 0) {
         throw new ApiError(404, "No carts found");
     }
