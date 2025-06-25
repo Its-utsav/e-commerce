@@ -21,7 +21,7 @@ export interface IOrderData {
     amount: number;
     paymentMethod: "UPI" | "COD" | "STRIPE" | "RAZORPAY";
     status: "PENDING" | "DELIVERED" | "CANCELLED";
-    paymentStatus: "PENDING" | "COMPLETED";
+    paymentStatus: "PENDING" | "COMPLETED" | "CANCELLED";
     createdAt: Date;
     updatedAt: Date;
 }
@@ -80,7 +80,7 @@ const orderSchema = new Schema<
         },
         paymentStatus: {
             type: String,
-            enum: ["PENDING", "COMPLETED"],
+            enum: ["PENDING", "COMPLETED", "CANCELLED"],
             default: "PENDING",
             required: true,
         },

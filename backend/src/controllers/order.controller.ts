@@ -37,7 +37,7 @@ const placeNewOrder = asyncHandler(
         // If i recevied the productId and quantity -> than it will became our order
 
         const userId = req.user?._id;
-        console.log(req.body);
+        // console.log(req.body);
         const zodStatus = createOrderInputZodSchema.safeParse(req.body);
         if (!zodStatus.success) {
             const error = zodStatus.error.errors
@@ -46,9 +46,11 @@ const placeNewOrder = asyncHandler(
             throw new ApiError(400, error);
         }
 
+        // only when we get info in request
         const cleanOrderData = zodStatus.data; // clear data
 
         // actual item will store
+        // can be from cart or direct data
         let orderItems: { productId: string; quantity: number }[];
 
         // NO INPUT -> cart products will be our orderItems
@@ -59,7 +61,11 @@ const placeNewOrder = asyncHandler(
             cleanOrderData.items.length == 0
         ) {
             const userCart = await Cart.findOne({ userId });
-            if (!userCart || !userCart.products || !userCart.products.length) {
+            if (
+                !userCart ||
+                !userCart.products ||
+                userCart.products.length === 0
+            ) {
                 throw new ApiError(404, "No Cart items found");
             }
 
@@ -89,7 +95,7 @@ const placeNewOrder = asyncHandler(
                 .select("stock finalPrice")
                 .lean();
 
-            // No price and stock found or length of price and stock array is not same as productIds array -> possiblity any id is worng
+            // No price and stock found or length of price and stock array is not same as productIds array -> possiblity any id is worng or for any id data were not found
 
             if (
                 !productPriceAndStock ||
@@ -108,12 +114,12 @@ const placeNewOrder = asyncHandler(
 
             for (let item of orderItems) {
                 // now iterate over each item in orderItems
-                // check that productId of item is avaialbel in price and stock array
+                // check that productId of item is available in price and stock array
                 const productDetails = productPriceAndStock.find(
                     (product) => product._id.toString() === item.productId
                 );
 
-                // Not found means we have no data of it
+                // Not found means we have no data of it can't proceed further
                 if (!productDetails) {
                     throw new ApiError(
                         404,
@@ -138,7 +144,7 @@ const placeNewOrder = asyncHandler(
                     price: productDetails.finalPrice,
                     quantity: item.quantity,
                 });
-                // update the stock
+                // subtract product cart stock
                 await Product.findByIdAndUpdate(
                     item.productId,
                     {
@@ -148,12 +154,17 @@ const placeNewOrder = asyncHandler(
                 );
             }
 
-            const newOrder = await Order.create({
-                userId,
-                products: orderProductItems,
-                amount: productAmount,
-                paymentMethod: cleanOrderData.paymentMethod,
-            });
+            const newOrder = await Order.create(
+                [
+                    {
+                        userId,
+                        products: orderProductItems,
+                        amount: productAmount,
+                        paymentMethod: cleanOrderData.paymentMethod,
+                    },
+                ],
+                { session }
+            );
 
             // - empty cart
             if (
@@ -177,11 +188,15 @@ const placeNewOrder = asyncHandler(
             return res
                 .status(201)
                 .json(
-                    new ApiResponse(201, newOrder, "Order successfully placed")
+                    new ApiResponse(
+                        201,
+                        newOrder[0],
+                        "Order successfully placed"
+                    )
                 );
         } catch (error) {
             await session.abortTransaction();
-            console.log("Error from placing new order ", error);
+            console.error("Error from placing new order ", error);
 
             if (error instanceof ApiError) {
                 throw error;
@@ -272,6 +287,9 @@ const getOrderDetails = asyncHandler(async (req: Request, res: Response) => {
                 as: "productDetails",
             },
         },
+        {
+            $unwind: "$productDetails",
+        },
     ];
     const ordersOrderDocument = await Order.aggregate(pipeline);
 
@@ -283,7 +301,7 @@ const getOrderDetails = asyncHandler(async (req: Request, res: Response) => {
         .json(
             new ApiResponse(
                 200,
-                ordersOrderDocument,
+                ordersOrderDocument[0],
                 "Order details fetched successfully"
             )
         );
@@ -296,15 +314,17 @@ const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(400, "Invalid order Id");
     }
     const orderDetails = await Order.findById(orderId);
+
     if (!orderDetails) {
         throw new ApiError(404, "No order found");
     }
 
+    // ADMIN can do anything
     if (!req.baseUrl.includes("admin") && !(req.user?.role === "ADMIN")) {
         if (orderDetails?.userId.toString() !== userId?.toString()) {
             throw new ApiError(
                 401,
-                "Unauthorized : you cannot cacel this order"
+                "Unauthorized : you cannot cancle this order"
             );
         }
     }
@@ -314,6 +334,18 @@ const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
             .status(200)
             .json(
                 new ApiResponse(200, orderDetails, "Order is already cancelled")
+            );
+    }
+
+    if (orderDetails.status === "DELIVERED") {
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    orderDetails,
+                    "Order is already delivered can't cancel it"
+                )
             );
     }
     const session = await mongoose.startSession();
@@ -343,6 +375,7 @@ const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
             );
         }
         orderDetails.status = "CANCELLED";
+        orderDetails.paymentStatus = "CANCELLED";
         await orderDetails?.save();
         await session.commitTransaction();
 
@@ -379,7 +412,6 @@ const makeAPayment = asyncHandler(async (req: Request, res: Response) => {
     if (!orderDetails) {
         throw new ApiError(404, "No Order found");
     }
-    console.log(orderDetails?.userId !== userId, orderDetails?.userId, userId);
 
     if (orderDetails?.userId.toString() !== userId?.toString()) {
         throw new ApiError(401, "You make payment of other's order");
