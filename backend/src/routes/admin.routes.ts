@@ -24,11 +24,11 @@ const router = Router();
 
 router.use(adminLimiter, verifyUser, adminOnly);
 router.route("/users").get(getAllUsers);
-router.route("/users/:userId").get(getUserDeatils).delete(deleteUser);
-router.route("/user/role/:userId").patch(updateUserRole);
+router.route("/users/:id").get(getUserDeatils).delete(deleteUser);
+router.route("/users/role/:userId").patch(updateUserRole);
 
 router.route("/merchant").get(getAllUsers);
-router.route("/merchant/:merchant").get(getUserDeatils).delete(deleteUser);
+router.route("/merchant/:id").get(getUserDeatils).delete(deleteUser);
 
 router.route("/products").get(getAllProducts);
 router

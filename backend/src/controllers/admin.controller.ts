@@ -15,6 +15,7 @@ import {
 import ApiError from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import asyncHandler from "../utils/asyncHandler";
+import { machine } from "node:os";
 
 const getAllUsers = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page as string, 10) || 1;
@@ -38,13 +39,31 @@ const getAllUsers = asyncHandler(async (req, res) => {
         limit,
         sort,
     };
+    const match: { [role: string]: string } = {};
+
+    if (req.url.includes("merchant")) {
+        match.role = "MERCHANT";
+    } else if (req.url.includes("users")) {
+        match.role = "USER";
+    }
 
     const pipeline: PipelineStage[] = [
+        // {
+        //     $match: {
+        //         role: "USER",
+        //     },
+        // },
         {
-            $match: {},
+            $project: {
+                password: 0,
+                refreshToken: 0,
+            },
         },
     ];
 
+    if (Object.keys(match).length > 0) {
+        pipeline.push({ $match: match });
+    }
     const allUsers: AggregatePaginateResult<UserDocument> =
         await User.aggregatePaginate(User.aggregate(pipeline), options);
 
@@ -57,7 +76,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 });
 
 const getUserDeatils = asyncHandler(async (req, res) => {
-    const userId = req.params.userId;
+    const userId = req.params.id;
 
     if (!userId) {
         throw new ApiError(400, "User Id not provided");
@@ -67,7 +86,11 @@ const getUserDeatils = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid user Id");
     }
 
-    const user = await User.findById(userId)
+    let role: string = "";
+    if (req.url.includes("users")) role = "USER";
+    else if (req.url.includes("merchant")) role = "MERCHANT";
+
+    const user = await User.findOne({ _id: userId, role: role })
         .select("-password -refreshToken")
         .lean();
 
@@ -96,7 +119,10 @@ const deleteUser = asyncHandler(async (req, res) => {
     }
 
     if (adminId.toString() === userId.toString()) {
-        throw new ApiError(400, "Admin cannot delete thier own account");
+        throw new ApiError(
+            400,
+            "Admin cannot delete thier own account by using admin privileges, if you want to delete your account, login as admin user then send delete request"
+        );
     }
 
     const session = await mongoose.startSession();
@@ -171,6 +197,10 @@ const updateUserRole = asyncHandler(
         if (!user) {
             throw new ApiError(404, "User not found");
         }
+        // new role is same as previous one
+        if (user.role === role) {
+            throw new ApiError(400, "New Role is same as current role");
+        }
 
         //   Became admin
 
@@ -204,9 +234,9 @@ const updateUserRole = asyncHandler(
 
         await user.save();
 
-        const updatedUser = await User.findById(userId).select(
-            "-password -refreshToken"
-        );
+        const updatedUser = await User.findById(userId)
+            .select("-password -refreshToken")
+            .lean();
 
         return res
             .status(200)

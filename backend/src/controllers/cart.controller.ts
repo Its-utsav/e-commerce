@@ -90,9 +90,7 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
         //     },
         // },
     ]);
-    console.dir(allCarts[0], {
-        depth: "Infinity",
-    });
+
     if (!allCarts || allCarts.length === 0) {
         throw new ApiError(404, "No carts found");
     }

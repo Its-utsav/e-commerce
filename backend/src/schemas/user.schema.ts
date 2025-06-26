@@ -1,10 +1,13 @@
 import { z } from "zod";
 
 export const createUserZodSchema = z.object({
-    username: z.string({
-        message: "Username must be required",
-        invalid_type_error: "Username must be string",
-    }),
+    username: z
+        .string({
+            message: "Username must be required",
+            invalid_type_error: "Username must be string",
+        })
+        .toLowerCase()
+        .trim(),
 
     email: z
         .string({
@@ -66,7 +69,7 @@ export type updatePassword = z.infer<typeof updatePasswordZodSchema>;
 
 export const updateUserRoleZodSchema = z.object({
     role: z.enum(["ADMIN", "USER", "MERCHANT"], {
-        required_error: "Update usre role is required",
+        required_error: "Update user role is required",
         invalid_type_error: "Role must be string",
     }),
 });
