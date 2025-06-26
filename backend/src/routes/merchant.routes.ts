@@ -6,15 +6,13 @@ import {
     getMerchantOrdersDetails,
     updateOrderStatus,
     updateProductDetails,
+    getMerchantProduct,
 } from "../controllers/merchant.controller";
-import {
-    getAllProducts,
-    getInfoOfProduct,
-} from "../controllers/product.controller";
+import { getAllProducts } from "../controllers/product.controller";
 import { getUserInfo, updateUser } from "../controllers/user.controller";
 import { verifyUser } from "../middleware/auth.middleware";
 import merchantOnly from "../middleware/merchant.middleware";
-import { upload } from "../middleware/multer.middleware";
+import { formData, upload } from "../middleware/multer.middleware";
 import { merchantLimiter, userLimiter } from "../utils/rateLimiter";
 
 const router = Router();
@@ -31,12 +29,12 @@ router
     .get(getAllProducts);
 router
     .route("/products/:productId")
-    .get(getInfoOfProduct)
+    .get(getMerchantProduct)
     .patch(upload.array("productImg", 5), updateProductDetails)
     .delete(deleteProduct);
 
 router.route("/orders").get(getMerchantAllOrdersDetails);
 router.route("/orders/:orderId").get(getMerchantOrdersDetails);
-router.route("/orders/status/:orderId").patch(updateOrderStatus);
+router.route("/orders/status/:orderId").patch(formData, updateOrderStatus);
 
 export default router;

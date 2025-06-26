@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import mongoose, { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId, PipelineStage } from "mongoose";
 import Cart from "../model/cart.model";
 import Order from "../model/order.model";
 import Product from "../model/product.model";
@@ -72,6 +72,68 @@ const createNewProduct = asyncHandler(
     }
 );
 
+const getMerchantProduct = asyncHandler(async (req, res) => {
+    const productId = req.params.productId;
+    const zodResult = searchProductByIdZodSchema.safeParse({ id: productId });
+    // console.log(zodResult.data);
+
+    if (!zodResult.success) {
+        const error = zodResult.error.errors.map((e) => e.message).join(", ");
+        throw new ApiError(400, error);
+    }
+    const { id } = zodResult.data;
+
+    // we have to also need sellor informations
+
+    const pipeline: PipelineStage[] = [
+        {
+            $match: {
+                $and: [
+                    {
+                        _id: new mongoose.Types.ObjectId(id),
+                    },
+                    { sellerId: new mongoose.Types.ObjectId(req.user?._id) },
+                ],
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "sellerId",
+                foreignField: "_id",
+                as: "sellerInfo",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            avatarUrl: 1,
+                        },
+                    },
+                ],
+            },
+        },
+        {
+            $unwind: "$sellerInfo",
+        },
+    ];
+
+    const product = await Product.aggregate(pipeline);
+
+    if (!product || product.length === 0) {
+        throw new ApiError(404, "Product not found");
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                product[0],
+                "Product Data fetched data successfully"
+            )
+        );
+});
+
 const updateProductDetails = asyncHandler(
     async (req: Request<any, {}, updateProductDetails>, res: Response) => {
         const zodResult = updateProductDetailsZodSchema.safeParse(req.body);
@@ -82,9 +144,8 @@ const updateProductDetails = asyncHandler(
                 .join(", ");
             throw new ApiError(400, error);
         }
-        let { description, discount, price, name, stock, imageUrls } =
-            zodResult.data;
-
+        let { description, discount, price, name, stock } = zodResult.data;
+        console.log(zodResult.data);
         const zodResultProductId = searchProductByIdZodSchema.safeParse({
             id: req.params.productId,
         });
@@ -116,12 +177,14 @@ const updateProductDetails = asyncHandler(
 
         // name
         if (name !== undefined && product.name !== name) {
+            console.log("name not same", name);
             product.name = name;
             updateStatus = true;
         }
 
         // description
         if (description !== undefined && product.description !== description) {
+            console.log("description not same");
             product.description = description;
             updateStatus = true;
         }
@@ -129,12 +192,14 @@ const updateProductDetails = asyncHandler(
         // price
 
         if (price !== undefined && product.originalPrice !== price) {
+            console.log("price not same");
             product.originalPrice = price;
             updateStatus = true;
         }
 
         // stock
         if (stock !== undefined && product.stock !== stock) {
+            console.log("stock not same");
             product.stock = stock;
             updateStatus = true;
         }
@@ -144,6 +209,7 @@ const updateProductDetails = asyncHandler(
             discount !== undefined &&
             product.discountInPercentage !== discount
         ) {
+            console.log("discount not same");
             product.discountInPercentage = discount;
             updateStatus = true;
         }
@@ -267,11 +333,32 @@ const getMerchantAllOrdersDetails = asyncHandler(
         const allProductsId = await Product.find({ sellerId: req.user?._id })
             .select("_id")
             .lean();
-        const orders = await Order.find({
-            "products.productId": {
-                $in: allProductsId,
+
+        const productIds = allProductsId.map((p) => p._id);
+
+        const orders = await Order.aggregate([
+            {
+                $match: {
+                    "products.productId": {
+                        $in: productIds,
+                    },
+                },
             },
-        });
+            {
+                $project: {
+                    totalAmount: 1,
+                    createdAt: 1,
+                    // Filter only merchant's products from products array
+                    products: {
+                        $filter: {
+                            input: "$products",
+                            as: "item",
+                            cond: { $in: ["$$item.productId", productIds] },
+                        },
+                    },
+                },
+            },
+        ]);
 
         if (!orders || orders.length === 0) {
             throw new ApiError(404, "No orders found");
@@ -287,6 +374,7 @@ const getMerchantAllOrdersDetails = asyncHandler(
 
 const getMerchantOrdersDetails = asyncHandler(
     async (req: Request, res: Response) => {
+        throw new ApiError(404, "this service is unable :(");
         if (!isValidObjectId(req.params.orderId)) {
             throw new ApiError(400, "Invalid order id");
         }
@@ -309,6 +397,7 @@ const getMerchantOrdersDetails = asyncHandler(
 
 const updateOrderStatus = asyncHandler(
     async (req: Request<any, {}, updateOrderStatusType>, res: Response) => {
+        console.log(req.body);
         const zodResult = updateOrderStatusZodSchema.safeParse(req.body);
 
         if (!zodResult.success) {
@@ -381,4 +470,5 @@ export {
     getMerchantOrdersDetails,
     updateOrderStatus,
     updateProductDetails,
+    getMerchantProduct,
 };

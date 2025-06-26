@@ -140,8 +140,7 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
     const { id } = zodResult.data;
 
     // we have to also need sellor informations
-
-    const product = await Product.aggregate([
+    const pipeline: PipelineStage[] = [
         {
             $match: {
                 _id: new mongoose.Types.ObjectId(id),
@@ -166,14 +165,8 @@ const getInfoOfProduct = asyncHandler(async (req: Request, res: Response) => {
         {
             $unwind: "$sellerInfo",
         },
-    ]);
-    console.log(product);
-    // ONLY for merchant ---------
-    /**
-     * @todo Complete this
-     */
-    if (req.user?.role === "MERCHANT" && req.baseUrl.includes("/merchant")) {
-    }
+    ];
+    const product = await Product.aggregate(pipeline);
 
     if (!product || product.length === 0) {
         throw new ApiError(404, "Product not found");

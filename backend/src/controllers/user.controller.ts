@@ -85,6 +85,7 @@ const registerUser = asyncHandler(
             const userData = createdUser[0].toObject();
 
             const resUser = {
+                _id: userData._id,
                 username: userData.username,
                 email: userData.email,
                 role: userData.role,
@@ -157,6 +158,7 @@ const loginUser = asyncHandler(
         // save into the cookie
         const user = existsUser.toObject();
         const userRes = {
+            _id: user._id,
             username: user.username,
             avatarUrl: user.avatarUrl,
             email: user.email,

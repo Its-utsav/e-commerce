@@ -142,25 +142,19 @@ export const updateProductDetailsZodSchema = z.object({
             message: "Product name is required",
         })
         .optional(),
-    imageUrls: z
-        .array(z.string())
-        .max(5, {
-            message: "You can't upload more than 5 photos",
-        })
-        .optional(),
     description: z
         .string()
         .min(5, "Product description must have minimum 5 characters")
         .max(2000, "Product description can have maximum 2000 characters")
         .optional(),
-    price: z
+    price: z.coerce
         .number({
             required_error: "Product price is required",
             invalid_type_error: "Product price must be a number",
         })
         .min(0, { message: "Product price can not be less than zero (0)." })
         .optional(),
-    stock: z
+    stock: z.coerce
         .number({
             required_error: "Product stock is required",
             invalid_type_error: "Product stock must be a number",
@@ -168,12 +162,12 @@ export const updateProductDetailsZodSchema = z.object({
         .int({ message: "Product stock must be an integer" })
         .min(0, { message: "Product stock can not be less than zero (0)." })
         .optional(),
-    discount: z
+    discount: z.coerce
         .number({
-            invalid_type_error: "Product discound must be a number",
+            invalid_type_error: "Product discount must be a number",
         })
-        .min(0, { message: "Product discound can not be negative" })
-        .max(100, { message: "Product discound can not be more than 100" })
+        .min(0, { message: "Product discount can not be negative" })
+        .max(100, { message: "Product discount can not be more than 100" })
         .default(0)
         .optional(),
 });

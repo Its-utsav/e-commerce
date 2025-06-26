@@ -163,7 +163,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     } catch (error) {
         await session.abortTransaction();
         if (error instanceof ApiError) throw error;
-        new ApiError(500, "something went wrong while user deletion");
+        throw new ApiError(500, "something went wrong while user deletion");
     } finally {
         await session.endSession();
     }
