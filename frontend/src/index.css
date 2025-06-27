@@ -1,6 +1,7 @@
 @import "tailwindcss";
+@plugin "daisyui";
 @layer {
-  button {
-    @apply cursor-pointer disabled:cursor-not-allowed;
-  }
+    button {
+        @apply cursor-pointer disabled:cursor-not-allowed;
+    }
 }

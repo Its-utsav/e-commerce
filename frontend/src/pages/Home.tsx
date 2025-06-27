@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { ErrorCmp, Loading, ProductCard } from "../components";
-import productService from "../services/product/product";
+import productService from "../services/product";
 import type { ProdcutDetails } from "../types/product.types";
 
 export default function Home() {

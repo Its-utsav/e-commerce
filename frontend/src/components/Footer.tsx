@@ -1,3 +1,9 @@
 export default function Footer() {
-    return <div>Footer</div>;
+    return (
+        <footer className="footer-center my-4 footer bg-base-300 p-4 text-base-content sm:footer-horizontal">
+            <aside>
+                <p>Copyright © 2025 - All right reserved by ZERO Cart</p>
+            </aside>
+        </footer>
+    );
 }

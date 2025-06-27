@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { ErrorCmp, Loading } from "../components";
 import { Product as ProductComponent } from "../components/index";
-import productService from "../services/product/product";
+import productService from "../services/product";
 import type { ProdcutDetails } from "../types/product.types";
 
 export default function Product() {

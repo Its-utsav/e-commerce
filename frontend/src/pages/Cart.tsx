@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ErrorCmp, ProductCart } from "../components";
-import cartService from "../services/cart/cart";
-import productService from "../services/product/product";
+import cartService from "../services/cart";
+import productService from "../services/product";
 import type { CartDeatils } from "../types/cart.types";
 import type { ProdcutDetails } from "../types/product.types";
 

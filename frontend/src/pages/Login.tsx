@@ -2,7 +2,7 @@ import { useForm, type FieldErrors } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { Button, ErrorCmp, Input } from "../components";
 import { useState } from "react";
-import authservice from "../services/auth/auth";
+import authservice from "../services/auth";
 import { useDispatch } from "react-redux";
 import { login as userLogin } from "../features/auth/authSlice";
 interface Inputs {

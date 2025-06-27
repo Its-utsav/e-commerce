@@ -3,7 +3,7 @@ import { Footer, Header } from "./components";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { login, logout } from "./features/auth/authSlice";
-import authservice from "./services/auth/auth";
+import authservice from "./services/auth";
 
 export default function App() {
     const dispatch = useDispatch();
@@ -35,7 +35,9 @@ export default function App() {
             <div className="flex min-h-screen flex-wrap content-between">
                 <div className="mx-4 block w-full">
                     <Header />
-                    <Outlet />
+                    <main>
+                        <Outlet />
+                    </main>
                     <Footer />
                 </div>
             </div>

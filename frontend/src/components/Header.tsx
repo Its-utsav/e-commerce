@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router";
 import { logout } from "../features/auth/authSlice";
-import authservice from "../services/auth/auth";
+import authservice from "../services/auth";
 import type { RootState } from "../store/store";
 import Button from "./Button";
 import Container from "./Container";

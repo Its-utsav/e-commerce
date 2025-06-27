@@ -1,13 +1,16 @@
-import type { AllProducts, ProdcutDetails } from "../../types/product.types";
-import type { BackendResponse } from "../../types/user.types";
+import { evn } from "../config/env";
+import type { AllProducts, ProdcutDetails } from "../types/product.types";
+import type { BackendResponse } from "../types/user.types";
 
 class ProductService {
     BASE_URL: string;
     constructor() {
-        const isDev = import.meta.env.DEV;
-        this.BASE_URL = isDev ? "/api" : import.meta.env.BACKEND_URL;
+        const isDev = evn.isDev;
+        this.BASE_URL = isDev ? "/api" : evn.BASE_URL;
     }
 
+    // get product by query
+    //
     async getProductsDetails(query: string = "") {
         try {
             const res = await fetch(`${this.BASE_URL}/products?${query}`, {

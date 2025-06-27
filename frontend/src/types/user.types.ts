@@ -20,6 +20,7 @@ export interface SignUpData {
 }
 
 export interface SignUpDataResponse {
+    _id: string;
     username: string;
     email: string;
     address?: string;
@@ -32,6 +33,7 @@ export interface LoginUserData {
 }
 
 export interface LoginUserResponseData {
+    _id: string;
     username: string;
     avatarUrl: string;
     email: string;
@@ -39,9 +41,12 @@ export interface LoginUserResponseData {
 }
 
 export interface GeneralUserResponse {
+    _id: string;
     username: string;
     avatarUrl?: string;
     email: string;
     role: string;
     address?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }

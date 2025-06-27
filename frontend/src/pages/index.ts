@@ -6,4 +6,5 @@ import OrderHistory from "./OrderHistory.tsx";
 import Product from "./Product.tsx";
 import Profile from "./Profile.tsx";
 import SignUp from "./SignUp.tsx";
+
 export { Product, Cart, Home, Login, NotFound, OrderHistory, Profile, SignUp };

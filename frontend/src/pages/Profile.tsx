@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import authservice from "../services/auth/auth";
+import authservice from "../services/auth";
 import type { GeneralUserResponse } from "../types/user.types";
 
 export default function Profile() {
@@ -17,7 +17,7 @@ export default function Profile() {
             <div>
                 <div className="flex flex-col items-center justify-center">
                     {user.avatarUrl && (
-                        <div>
+                        <div className="avatar h-32">
                             <img
                                 className="h-48 rounded-sm"
                                 src={user.avatarUrl}

@@ -1,3 +1,5 @@
+import { evn } from "../config/env";
+import type { OrderHistory } from "../types/order.types";
 import type {
     BackendResponse,
     GeneralUserResponse,
@@ -5,23 +7,26 @@ import type {
     LoginUserResponseData,
     SignUpData,
     SignUpDataResponse,
-} from "../../types/user.types";
+} from "../types/user.types";
 
 class AuthService {
     BASE_URL: string;
     constructor() {
-        const isDev = import.meta.env.DEV;
-        this.BASE_URL = isDev ? "/api" : import.meta.env.BACKEND_URL;
+        const isDev = evn.isDev;
+        this.BASE_URL = isDev ? "/api" : evn.BASE_URL;
     }
+
     // /api -> http://localhost:3000/api/v1
+
+    // test while developing frontend
     async signup(data: SignUpData) {
         try {
             const res = await fetch(`${this.BASE_URL}/auth/register`, {
                 method: "POST",
-                credentials: "include",
+                // credentials: "include",
                 body: JSON.stringify(data),
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "multipart/form-data",
                 },
             });
 
@@ -45,7 +50,7 @@ class AuthService {
         try {
             const res = await fetch(`${this.BASE_URL}/auth/login`, {
                 method: "POST",
-                credentials: "include",
+                // credentials: "include",
                 body: JSON.stringify(data),
                 headers: {
                     "Content-Type": "application/json",
@@ -78,7 +83,7 @@ class AuthService {
                 },
             });
 
-            const resData = await res.json();
+            const resData: BackendResponse<{}> = await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
                     resData.message ||
@@ -123,6 +128,7 @@ class AuthService {
      * @param data
      * @returns
      */
+    // image !!!!!
     async updateDetails(data: { address: string }) {
         try {
             const res = await fetch(`${this.BASE_URL}/auth/updateDeatils`, {
@@ -160,8 +166,7 @@ class AuthService {
                     "Content-Type": "application/json",
                 },
             });
-            const resData: BackendResponse<GeneralUserResponse> =
-                await res.json();
+            const resData: BackendResponse<{}> = await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
                     resData.message ||
@@ -210,18 +215,17 @@ class AuthService {
                     "Content-Type": "application/json",
                 },
             });
-            const resData: BackendResponse<GeneralUserResponse> =
-                await res.json();
+            const resData: BackendResponse<OrderHistory> = await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
                     resData.message ||
-                        "An unknown error occurred during getUserInfo.",
+                        "An unknown error occurred during getOrderHistory.",
                 );
             }
 
             return resData.data;
         } catch (error) {
-            console.error(`error :: getUserInfo :: ${error}`);
+            console.error(`error :: getOrderHistory :: ${error}`);
             throw error;
         }
     }
