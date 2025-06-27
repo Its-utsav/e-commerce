@@ -32,26 +32,33 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
                 as: "products",
             },
         },
-        {
-            $unwind: "$products",
-        },
+        // {
+        //     $unwind: "$products",
+        // },
         {
             $project: {
-                _id: "$_id",
-                amount: "$amount",
-                userId: "$userId",
-                totalItems: "$totalItems",
+                _id: 1,
+                amount: 1,
+                userId: 1,
+                totalItems: 1,
                 products: {
-                    _id: "$products._id",
-                    name: "$products.name",
-                    description: "$products.description",
-                    originalPrice: "$products.originalPrice",
-                    stock: "$products.stock",
-                    discountInPercentage: "$products.discountInPercentage",
-                    discountInPrice: "$products.discountInPrice",
-                    finalPrice: "$products.finalPrice",
-                    img: {
-                        $arrayElemAt: ["$products.imageUrls", 0],
+                    $map: {
+                        input: "$products",
+                        as: "product",
+                        in: {
+                            _id: "$$product._id",
+                            name: "$$product.name",
+                            description: "$$product.description",
+                            originalPrice: "$$product.originalPrice",
+                            stock: "$$product.stock",
+                            discountInPercentage:
+                                "$$product.discountInPercentage",
+                            discountInPrice: "$$product.discountInPrice",
+                            finalPrice: "$$product.finalPrice",
+                            img: {
+                                $arrayElemAt: ["$$product.imageUrls", 0],
+                            },
+                        },
                     },
                 },
             },
@@ -97,11 +104,7 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
     return res
         .status(200)
         .json(
-            new ApiResponse(
-                200,
-                allCarts[0],
-                "Cart details fetched successfully"
-            )
+            new ApiResponse(200, allCarts, "Cart details fetched successfully")
         );
 });
 

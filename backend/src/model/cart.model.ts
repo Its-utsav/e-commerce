@@ -124,7 +124,7 @@ cartSchema.methods.calculateTotalAndUpdateQuantity =
     };
 
 cartSchema.pre("save", async function (next) {
-    console.log("Pre hook run", this);
+    // console.log("Pre hook run", this);
     await this.calculateTotalAndUpdateQuantity();
     next();
 });
