@@ -20,7 +20,7 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
         - SOME USER INFO 
         TODO -> fix response
     */
-    const allCarts = await Cart.aggregate([
+    const cart = await Cart.aggregate([
         {
             $match: { userId: new mongoose.Types.ObjectId(userId) },
         },
@@ -29,13 +29,11 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
                 from: "products",
                 localField: "products.productId",
                 foreignField: "_id",
-                as: "products",
+                as: "productDetails",
             },
         },
-        // {
-        //     $unwind: "$products",
-        // },
         {
+            // thanks GPT :)
             $project: {
                 _id: 1,
                 amount: 1,
@@ -43,69 +41,62 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
                 totalItems: 1,
                 products: {
                     $map: {
-                        input: "$products",
-                        as: "product",
+                        input: "$products", // original cart products with quantity
+                        as: "cartItem",
                         in: {
-                            _id: "$$product._id",
-                            name: "$$product.name",
-                            description: "$$product.description",
-                            originalPrice: "$$product.originalPrice",
-                            stock: "$$product.stock",
-                            discountInPercentage:
-                                "$$product.discountInPercentage",
-                            discountInPrice: "$$product.discountInPrice",
-                            finalPrice: "$$product.finalPrice",
-                            img: {
-                                $arrayElemAt: ["$$product.imageUrls", 0],
+                            $let: {
+                                vars: {
+                                    product: {
+                                        $arrayElemAt: [
+                                            {
+                                                $filter: {
+                                                    input: "$productDetails",
+                                                    as: "detail",
+                                                    cond: {
+                                                        $eq: [
+                                                            "$$detail._id",
+                                                            "$$cartItem.productId",
+                                                        ],
+                                                    },
+                                                },
+                                            },
+                                            0,
+                                        ],
+                                    },
+                                },
+                                in: {
+                                    _id: "$$product._id",
+                                    name: "$$product.name",
+                                    description: "$$product.description",
+                                    originalPrice: "$$product.originalPrice",
+                                    stock: "$$product.stock",
+                                    discountInPercentage:
+                                        "$$product.discountInPercentage",
+                                    discountInPrice:
+                                        "$$product.discountInPrice",
+                                    finalPrice: "$$product.finalPrice",
+                                    img: {
+                                        $arrayElemAt: [
+                                            "$$product.imageUrls",
+                                            0,
+                                        ],
+                                    },
+                                    quantity: "$$cartItem.quantity",
+                                },
                             },
                         },
                     },
                 },
             },
         },
-
-        // {
-        //     $lookup: {
-        //         from: "products", // where
-        //         localField: "products.productId", // my filed
-        //         foreignField: "_id", // product collection -> _id
-        //         as: "productInfo",
-        //         // pipeline: [
-        //         //     {
-        //         //         $project: {
-        //         //             _id: 1,
-        //         //             finalPrice: 1,
-        //         //             originalPrice: 1,
-        //         //             description: 1,
-        //         //             imageUrls: 1,
-        //         //             name: 1,
-        //         //             sellerId: 1,
-        //         //         },
-        //         //     },
-        //         // ],
-        //     },
-        // },
-        // {
-        //     $unwind: "$productInfo",
-        // },
-        // {
-        //     $lookup: {
-        //         from: "user", // where
-        //         localField: "productInfo.sellerId", // my filed
-        //         foreignField: "_id", // product collection -> _id
-        //         as: "sellerInfo",
-        //     },
-        // },
     ]);
 
-    if (!allCarts || allCarts.length === 0) {
+    if (!cart || cart.length === 0) {
         throw new ApiError(404, "No carts found");
     }
     return res
         .status(200)
-        .json(
-            new ApiResponse(200, allCarts, "Cart details fetched successfully")
-        );
+        .json(new ApiResponse(200, cart, "Cart details fetched successfully"));
 });
 
 /**
