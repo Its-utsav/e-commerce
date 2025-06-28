@@ -16,3 +16,11 @@ export interface OrderHistory {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface NewOrder {
+    paymentMethod: string;
+}
+
+export interface PaymentResponse {
+    message: string;
+}
