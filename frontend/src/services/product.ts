@@ -1,12 +1,12 @@
-import { evn } from "../config/env";
+import { env } from "../config/env";
 import type { AllProducts, ProdcutDetails } from "../types/product.types";
 import type { BackendResponse } from "../types/user.types";
 
 class ProductService {
     BASE_URL: string;
     constructor() {
-        const isDev = evn.isDev;
-        this.BASE_URL = isDev ? "/api" : evn.BASE_URL;
+        const isDev = env.isDev;
+        this.BASE_URL = isDev ? "/api" : env.BASE_URL;
     }
 
     // get product by query

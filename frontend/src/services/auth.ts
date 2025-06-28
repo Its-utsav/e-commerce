@@ -1,4 +1,4 @@
-import { evn } from "../config/env";
+import { env } from "../config/env";
 import type { OrderHistory } from "../types/order.types";
 import type {
     BackendResponse,
@@ -12,8 +12,8 @@ import type {
 class AuthService {
     BASE_URL: string;
     constructor() {
-        const isDev = evn.isDev;
-        this.BASE_URL = isDev ? "/api" : evn.BASE_URL;
+        const isDev = env.isDev;
+        this.BASE_URL = isDev ? "/api" : env.BASE_URL;
     }
 
     // /api -> http://localhost:3000/api/v1

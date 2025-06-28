@@ -1,5 +1,12 @@
 export interface CartProduct {
-    productId: string;
+    _id: string;
+    name: string;
+    description: string;
+    originalPrice: number;
+    stock: number;
+    discountInPercentage: number;
+    discountInPrice: number;
+    finalPrice: number;
     quantity: number;
 }
 
@@ -9,6 +16,18 @@ export interface CartDeatils {
     userId: string;
     products: CartProduct[];
     totalItems: number;
-    createdAt: string; //"2025-05-12T07:57:24.483Z"
-    updatedAt: string; // "2025-06-21T15:04:21.945Z"
+    createdAt: Date; //"2025-05-12T07:57:24.483Z"
+    updatedAt: Date; // "2025-06-21T15:04:21.945Z"
+}
+
+export interface ProductsIdAndQty {
+    productId: string;
+    quantity: number;
+}
+export interface NewProductInCart extends Omit<CartDeatils, "products"> {
+    products: ProductsIdAndQty[];
+}
+
+export interface removeProductFromCart extends Omit<CartDeatils, "products"> {
+    products: ProductsIdAndQty[];
 }

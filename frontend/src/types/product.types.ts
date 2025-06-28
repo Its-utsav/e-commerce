@@ -13,8 +13,8 @@ export interface ProdcutDetails {
     originalPrice: number;
     stock: number;
     discountInPercentage: number;
-    createdAt: string; // 2025-05-11T12:04:05.318Z
-    updatedAt: string; // 2025-05-12T11:20:36.091Z
+    createdAt: Date; // 2025-05-11T12:04:05.318Z
+    updatedAt: Date; // 2025-05-12T11:20:36.091Z
     finalPrice: number;
     discountInPrice: number;
     sellerInfo: SellerInfo;
