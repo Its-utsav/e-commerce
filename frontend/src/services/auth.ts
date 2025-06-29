@@ -8,6 +8,7 @@ import type {
     SignUpData,
     SignUpDataResponse,
 } from "../types/user.types";
+import { authFetch } from "../utils/authFetch";
 
 class AuthService {
     BASE_URL: string;
@@ -75,7 +76,7 @@ class AuthService {
 
     async logout() {
         try {
-            const res = await fetch(`${this.BASE_URL}/auth/logout`, {
+            const res = await authFetch(`${this.BASE_URL}/auth/logout`, true, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -100,13 +101,17 @@ class AuthService {
 
     async refreshToken() {
         try {
-            const res = await fetch(`${this.BASE_URL}/auth/refreshToken`, {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
+            const res = await authFetch(
+                `${this.BASE_URL}/auth/refreshToken`,
+                true,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 },
-            });
+            );
 
             const resData = await res.json();
             if (!res.ok || !resData.success) {
@@ -131,14 +136,18 @@ class AuthService {
     // image !!!!!
     async updateDetails(data: { address: string }) {
         try {
-            const res = await fetch(`${this.BASE_URL}/auth/updateDeatils`, {
-                method: "PATCH",
-                credentials: "include",
-                body: JSON.stringify(data),
-                headers: {
-                    "Content-Type": "application/json",
+            const res = await authFetch(
+                `${this.BASE_URL}/auth/updateDeatils`,
+                true,
+                {
+                    method: "PATCH",
+                    credentials: "include",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 },
-            });
+            );
 
             const resData: BackendResponse<GeneralUserResponse> =
                 await res.json();
@@ -158,14 +167,18 @@ class AuthService {
 
     async changePassword(data: { oldPassword: string; newPassword: string }) {
         try {
-            const res = await fetch(`${this.BASE_URL}/auth/changePassword`, {
-                method: "PATCH",
-                credentials: "include",
-                body: JSON.stringify(data),
-                headers: {
-                    "Content-Type": "application/json",
+            const res = await authFetch(
+                `${this.BASE_URL}/auth/changePassword`,
+                true,
+                {
+                    method: "PATCH",
+                    credentials: "include",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 },
-            });
+            );
             const resData: BackendResponse<{}> = await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
@@ -183,7 +196,7 @@ class AuthService {
 
     async getUserInfo() {
         try {
-            const res = await fetch(`${this.BASE_URL}/auth/me`, {
+            const res = await authFetch(`${this.BASE_URL}/auth/me`, true, {
                 credentials: "include",
                 method: "GET",
                 headers: {
@@ -208,13 +221,17 @@ class AuthService {
 
     async getOrderHistory() {
         try {
-            const res = await fetch(`${this.BASE_URL}/auth/orderHistory`, {
-                credentials: "include",
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
+            const res = await authFetch(
+                `${this.BASE_URL}/auth/orderHistory`,
+                true,
+                {
+                    credentials: "include",
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 },
-            });
+            );
             const resData: BackendResponse<OrderHistory> = await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(

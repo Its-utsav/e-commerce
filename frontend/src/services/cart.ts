@@ -7,6 +7,7 @@ import type {
     removeProductFromCart,
 } from "../types/cart.types";
 import type { BackendResponse } from "../types/user.types";
+import { authFetch } from "../utils/authFetch";
 
 class CartService {
     BASE_URL: string;
@@ -19,7 +20,7 @@ class CartService {
 
     async getCartDeatils() {
         try {
-            const res = await fetch(`${this.BASE_URL}/carts/me`, {
+            const res = await authFetch(`${this.BASE_URL}/carts/me`, true, {
                 method: "GET",
                 credentials: "include",
                 headers: {
@@ -42,14 +43,18 @@ class CartService {
 
     async addProductToTheCart(data: CartProduct) {
         try {
-            const res = await fetch(`${this.BASE_URL}/carts/me/items`, {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
+            const res = await authFetch(
+                `${this.BASE_URL}/carts/me/items`,
+                true,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
                 },
-                body: JSON.stringify(data),
-            });
+            );
             const responseBody: BackendResponse<NewProductInCart> =
                 await res.json();
             if (!res.ok || !responseBody.success) {
@@ -67,8 +72,9 @@ class CartService {
 
     async updateProductQuantity(productId: string, data: ProductsIdAndQty) {
         try {
-            const res = await fetch(
+            const res = await authFetch(
                 `${this.BASE_URL}/carts/me/items/${productId}`,
+                true,
                 {
                     method: "PATCH",
                     credentials: "include",
@@ -94,8 +100,9 @@ class CartService {
 
     async deleteProductFromCart(productId: string) {
         try {
-            const res = await fetch(
+            const res = await authFetch(
                 `${this.BASE_URL}/carts/me/items/${productId}`,
+                true,
                 {
                     method: "DELETE",
                     credentials: "include",
@@ -121,13 +128,17 @@ class CartService {
 
     async emptyCart() {
         try {
-            const res = await fetch(`${this.BASE_URL}/carts/me/clear`, {
-                method: "DELETE",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
+            const res = await authFetch(
+                `${this.BASE_URL}/carts/me/clear`,
+                true,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 },
-            });
+            );
             const responseBody: BackendResponse<removeProductFromCart> =
                 await res.json();
             if (!res.ok || !responseBody.success) {

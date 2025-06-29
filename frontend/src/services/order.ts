@@ -1,6 +1,7 @@
 import { env } from "../config/env";
 import type { NewOrder, OrderHistory } from "../types/order.types";
 import type { BackendResponse } from "../types/user.types";
+import { authFetch } from "../utils/authFetch";
 
 class OrderService {
     BASE_URL: string;
@@ -11,7 +12,7 @@ class OrderService {
     // /api -> http://localhost:3000/api/v1
     async placeANewOrder(data: NewOrder) {
         try {
-            const res = await fetch(`${this.BASE_URL}/orders`, {
+            const res = await authFetch(`${this.BASE_URL}/orders`, true, {
                 method: "POST",
                 credentials: "include",
                 body: JSON.stringify(data),
@@ -35,12 +36,16 @@ class OrderService {
 
     async getOrderDetails(orderId: string) {
         try {
-            const res = await fetch(`${this.BASE_URL}/orders/${orderId}`, {
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
+            const res = await authFetch(
+                `${this.BASE_URL}/orders/${orderId}`,
+                true,
+                {
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 },
-            });
+            );
             const resBody: BackendResponse<OrderHistory> = await res.json();
             if (!res.ok || !resBody.success) {
                 console.error(
@@ -57,13 +62,17 @@ class OrderService {
 
     async makePayment(orderId: string) {
         try {
-            const res = await fetch(`${this.BASE_URL}/orders/${orderId}/pay`, {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
+            const res = await authFetch(
+                `${this.BASE_URL}/orders/${orderId}/pay`,
+                true,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 },
-            });
+            );
             const resBody: BackendResponse<PaymentResponse> = await res.json();
             if (!res.ok || !resBody.success) {
                 console.error(
@@ -80,8 +89,9 @@ class OrderService {
 
     async cancelOrder(orderId: string) {
         try {
-            const res = await fetch(
+            const res = await authFetch(
                 `${this.BASE_URL}/orders/${orderId}/cancel`,
+                true,
                 {
                     method: "PATCH",
                     credentials: "include",

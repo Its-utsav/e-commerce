@@ -26,12 +26,12 @@ router
     .route("/register")
     .post(authLimiter, upload.single("avatar"), registerUser);
 router.route("/login").post(authLimiter, formData, loginUser);
-router.use(verifyUser);
-router.route("/logout").post(generalLimiter, logoutUser);
+
 router
     .route("/refresh-token")
     .post(refreshTokenLimiter, formData, refreshAccessTokenViaRefreshToken);
-
+router.use(verifyUser);
+router.route("/logout").post(generalLimiter, logoutUser);
 router
     .use(userLimiter)
     .route("/me")
