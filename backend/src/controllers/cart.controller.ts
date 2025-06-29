@@ -15,9 +15,9 @@ import asyncHandler from "../utils/asyncHandler";
 const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
     // User is already loggdin
     const userId = req.user?._id;
-    /* 
+    /*
         - SOME PRODUCT INFO
-        - SOME USER INFO 
+        - SOME USER INFO
         TODO -> fix response
     */
     const cart = await Cart.aggregate([
@@ -94,9 +94,12 @@ const getCartDetails = asyncHandler(async (req: Request, res: Response) => {
     if (!cart || cart.length === 0) {
         throw new ApiError(404, "No carts found");
     }
+    console.log(cart);
     return res
         .status(200)
-        .json(new ApiResponse(200, cart, "Cart details fetched successfully"));
+        .json(
+            new ApiResponse(200, cart[0], "Cart details fetched successfully")
+        );
 });
 
 /**

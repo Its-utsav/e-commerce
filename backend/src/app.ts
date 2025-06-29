@@ -30,10 +30,11 @@ import merchantRoutes from "./routes/merchant.routes";
 import cartRoutes from "./routes/cart.routes";
 import orderRoutes from "./routes/order.routes";
 import adminRoutes from "./routes/admin.routes";
+import { caches } from "./middleware/cache.middleware";
 
 // ROUTES uses
-app.use(`${PREFIX_URL}/auth`, userRoutes);
-app.use(`${PREFIX_URL}/products`, productRouets);
+app.use(`${PREFIX_URL}/auth`, caches(3600 * 3), userRoutes);
+app.use(`${PREFIX_URL}/products`, caches(3600), productRouets);
 app.use(`${PREFIX_URL}/merchant`, merchantRoutes);
 app.use(`${PREFIX_URL}/carts`, cartRoutes);
 app.use(`${PREFIX_URL}/orders`, orderRoutes);
