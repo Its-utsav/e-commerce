@@ -8,6 +8,7 @@ export interface CartProduct {
     discountInPrice: number;
     finalPrice: number;
     quantity: number;
+    img: string;
 }
 
 export interface CartDeatils {

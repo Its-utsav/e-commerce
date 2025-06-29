@@ -232,7 +232,7 @@ class AuthService {
                     },
                 },
             );
-            const resData: BackendResponse<OrderHistory> = await res.json();
+            const resData: BackendResponse<OrderHistory[]> = await res.json();
             if (!res.ok || !resData.success) {
                 throw new Error(
                     resData.message ||

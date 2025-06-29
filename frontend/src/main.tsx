@@ -22,6 +22,7 @@ import {
 import Auth from "./routing/Auth.tsx";
 import Public from "./routing/Public.tsx";
 import store from "./store/store.ts";
+import Order from "./pages/Order.tsx";
 
 // const Home = lazy(() => import("./pages/Home.tsx"));
 
@@ -53,7 +54,10 @@ const router = createBrowserRouter(
                     {/*Page for singup*/}
                 </Route>
                 <Route element={<Auth />}>
-                    <Route path="orderHistory" element={<OrderHistory />} />
+                    <Route path="orders">
+                        <Route index element={<OrderHistory />} />
+                        <Route path=":orderId" element={<Order />} />
+                    </Route>
                     <Route path="cart" element={<Cart />} />
                     <Route path="profile" element={<Profile />} />
                 </Route>
@@ -62,7 +66,8 @@ const router = createBrowserRouter(
         </>,
     ),
 );
-
+const r = router.routes[0].children?.map((r) => r.path);
+console.log(r);
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <Provider store={store}>

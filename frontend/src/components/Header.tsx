@@ -28,7 +28,7 @@ export default function Header() {
         { name: "Login", path: "/login", active: !linkStatus },
         { name: "Singup", path: "/signup", active: !linkStatus },
         { name: "Cart", path: "/cart", active: linkStatus },
-        { name: "Order History", path: "/orderHistory", active: linkStatus },
+        { name: "Order History", path: "/orders", active: linkStatus },
         { name: "Profile", path: "/profile", active: linkStatus },
     ];
 
