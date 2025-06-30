@@ -10,6 +10,7 @@ import ProductCard from "./ProductCard";
 import ProductCart from "./ProductCart";
 import SellerInfo from "./SellerInfo";
 import Slideshow from "./Slideshow";
+import Price from "./Price";
 
 export {
     Header,
@@ -24,4 +25,5 @@ export {
     Slideshow,
     SellerInfo,
     ProductCart,
+    Price,
 };

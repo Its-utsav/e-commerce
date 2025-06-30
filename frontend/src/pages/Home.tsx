@@ -33,11 +33,18 @@ export default function Home() {
                         <Link to={`products/${product._id}`} key={product.name}>
                             <ProductCard
                                 name={product.name}
-                                imgUrl={product.imageUrls[0]}
+                                imgUrl={
+                                    product.imageUrls[0]
+                                        ? product.imageUrls[0]
+                                        : "./no-image.png"
+                                }
                                 originalPrice={product.originalPrice}
                                 description={product.description}
                                 finalPrice={product.finalPrice}
                                 discountInPrice={product.discountInPrice}
+                                discountInPercentage={
+                                    product.discountInPercentage
+                                }
                             />
                         </Link>
                     ))}

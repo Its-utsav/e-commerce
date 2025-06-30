@@ -1,3 +1,5 @@
+import Price from "./Price";
+
 type ProductCartProps = {
     imgUrl: string;
     originalPrice: number;
@@ -5,6 +7,7 @@ type ProductCartProps = {
     description: string;
     name: string;
     discountInPrice: number;
+    discountInPercentage: number;
 };
 
 export default function ProductCard(props: ProductCartProps) {
@@ -15,30 +18,27 @@ export default function ProductCard(props: ProductCartProps) {
         originalPrice,
         discountInPrice,
         description,
+        discountInPercentage,
     } = props;
     return (
-        <div className="border-2">
-            <div>
-                <div>
-                    <img src={imgUrl} alt={name} className="rounded-md" />
-                </div>
-                <div>
-                    <p>
-                        {finalPrice !== originalPrice ? (
-                            <>
-                                {finalPrice}
-                                <span className="line-through">
-                                    {originalPrice}
-                                </span>{" "}
-                                <span>Discount {discountInPrice}</span>
-                            </>
-                        ) : (
-                            <span>{finalPrice}</span>
-                        )}
-                    </p>
-                </div>
+        <div className="card-border card h-[400px] bg-base-100 p-2 shadow-sm">
+            <figure>
+                <img src={imgUrl} alt={name} />
+            </figure>
+            <div className="card-body">
+                <h2 className="card-title">{name}</h2>
                 <p>{description}</p>
+                {/* <div className="card-actions justify-end">
+                    <button className="btn btn-primary">Add to Cart</button>
+                </div> */}
             </div>
+            <Price
+                finalPrice={finalPrice}
+                originalPrice={originalPrice}
+                discountInPercentage={discountInPercentage}
+                discountInPrice={discountInPrice}
+                key={name}
+            />
         </div>
     );
 }

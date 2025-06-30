@@ -20,11 +20,12 @@ export default function Product(props: ProductProps) {
     return (
         <div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {/* <h1>{name}</h1> */}
-                <div className="bg-red-200">
-                    <Slideshow imageUrls={imageUrls} />
+                <div>
+                    <Slideshow
+                        imageUrls={imageUrls ? imageUrls : "no-image.png"}
+                    />
                 </div>
-                <div className="h-full bg-red-200">
+                <div className="h-full">
                     <div className="flex flex-col items-center justify-center gap-2">
                         <div>
                             <Button disabled>Add To cart</Button>

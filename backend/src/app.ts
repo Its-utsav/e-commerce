@@ -1,8 +1,8 @@
-import express from "express";
 import cookieParser from "cookie-parser";
-import globalErrorHandler from "./utils/globalError";
-import { PREFIX_URL } from "./constants";
+import express from "express";
 import morgan from "morgan";
+import { PREFIX_URL } from "./constants";
+import globalErrorHandler from "./utils/globalError";
 
 const app = express();
 
@@ -24,17 +24,16 @@ app.use(
 app.use(cookieParser());
 
 // ROUTES
-import userRoutes from "./routes/user.routes";
-import productRouets from "./routes/product.routes";
-import merchantRoutes from "./routes/merchant.routes";
-import cartRoutes from "./routes/cart.routes";
-import orderRoutes from "./routes/order.routes";
 import adminRoutes from "./routes/admin.routes";
-import { caches } from "./middleware/cache.middleware";
+import cartRoutes from "./routes/cart.routes";
+import merchantRoutes from "./routes/merchant.routes";
+import orderRoutes from "./routes/order.routes";
+import productRouets from "./routes/product.routes";
+import userRoutes from "./routes/user.routes";
 
 // ROUTES uses
-app.use(`${PREFIX_URL}/auth`, caches(3600 * 3), userRoutes);
-app.use(`${PREFIX_URL}/products`, caches(3600), productRouets);
+app.use(`${PREFIX_URL}/auth`, userRoutes);
+app.use(`${PREFIX_URL}/products`, productRouets);
 app.use(`${PREFIX_URL}/merchant`, merchantRoutes);
 app.use(`${PREFIX_URL}/carts`, cartRoutes);
 app.use(`${PREFIX_URL}/orders`, orderRoutes);

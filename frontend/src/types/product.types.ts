@@ -8,7 +8,7 @@ export interface ProdcutDetails {
     _id: string;
     name: string;
     sellerId: string;
-    imageUrls: string[];
+    imageUrls: string[] | string;
     description: string;
     originalPrice: number;
     stock: number;

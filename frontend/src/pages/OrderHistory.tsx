@@ -2,13 +2,18 @@ import { useEffect, useState } from "react";
 import authservice from "../services/auth";
 import type { OrderHistory } from "../types/order.types";
 import { Link } from "react-router";
+import { ErrorCmp } from "../components";
 
 export default function OrderHistory() {
+    const [error, setError] = useState("");
     const [orders, setOrders] = useState<null | OrderHistory[]>();
     useEffect(() => {
-        authservice.getOrderHistory().then((order) => setOrders(order));
+        authservice
+            .getOrderHistory()
+            .then((order) => setOrders(order))
+            .catch((e) => setError(e.message));
     }, []);
-    console.log(orders);
+    // console.log(orders);
     /*
     {
             "paymentStatus": "PENDING",
@@ -36,13 +41,22 @@ export default function OrderHistory() {
             "__v": 0
         },
     */
+    if (error) {
+        return (
+            <ErrorCmp
+                value={error}
+                autoHide={false}
+                className="alert-warning"
+            />
+        );
+    }
     return (
         <div>
             <div>
                 <div>
                     {orders?.map((order) => {
                         return (
-                            <Link to={`/${order._id}`} key={order._id}>
+                            <Link to={`/orders/${order._id}`} key={order._id}>
                                 <div className="">
                                     <div> Order status {order.status}</div>
                                 </div>

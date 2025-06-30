@@ -12,15 +12,20 @@ interface Inputs {
 
 export default function Login() {
     const [errors, setErrors] = useState("");
+    const [loading, setLoading] = useState<boolean>();
+
     const { register, handleSubmit } = useForm<Inputs>();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
     const login = async (data: Inputs) => {
         setErrors("");
+        setLoading(true);
         try {
             const res = await authservice.login(data);
             if (res) {
                 dispatch(userLogin(res));
+                setLoading(false);
                 navigate("/");
             }
         } catch (error) {
@@ -44,52 +49,71 @@ export default function Login() {
     };
 
     return (
-        <div className="flex w-full flex-col items-center justify-between gap-4">
-            <div>
-                Login
-                <div>
+        <div>
+            <div className="flex flex-col items-center justify-center">
+                <div className="py-2">
                     <p>
-                        Don't have account ? <Link to={"/signup"}>SignUp</Link>
+                        Don't have account ?{" "}
+                        <Link to={"/signup"} className="link">
+                            SignUp
+                        </Link>
                     </p>
                 </div>
+                <div className="w-2/3">
+                    <form onSubmit={handleSubmit(login, formErrors)}>
+                        <div className="space-y-5">
+                            <Input
+                                label="Email"
+                                className="block w-full"
+                                {...register("email", {
+                                    pattern: {
+                                        value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                        message:
+                                            "Email should be in valid format",
+                                    },
+                                    required: {
+                                        value: true,
+                                        message: "Email is required",
+                                    },
+                                })}
+                            />
+                        </div>
+                        <div className="space-y-5">
+                            <Input
+                                label="Password"
+                                className="block w-full"
+                                {...register("password", {
+                                    minLength: {
+                                        value: 8,
+                                        message:
+                                            "Password should be at least 8 character long",
+                                    },
+                                    required: {
+                                        value: true,
+                                        message: "Password is required",
+                                    },
+                                })}
+                            />
+                        </div>
+                        <div className="flex flex-col items-center justify-center">
+                            <Button
+                                type="submit"
+                                className="btn-soft"
+                                disabled={loading}
+                            >
+                                Login
+                            </Button>
+                            {loading && (
+                                <button className="btn">
+                                    <span className="loading loading-spinner"></span>
+                                    loading
+                                </button>
+                            )}
+                        </div>
+                    </form>
+                </div>
+                {errors && <ErrorCmp value={errors} autoHide={true} />}
             </div>
-            <form onSubmit={handleSubmit(login, formErrors)}>
-                <div className="space-y-5">
-                    <Input
-                        label="Email"
-                        className="block w-full"
-                        {...register("email", {
-                            pattern: {
-                                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                                message: "Email should be in valid format",
-                            },
-                            required: {
-                                value: true,
-                                message: "Email is required",
-                            },
-                        })}
-                    />
-                </div>
-                <div className="space-y-5">
-                    <Input
-                        label="Password"
-                        className="block w-full"
-                        {...register("password", {
-                            minLength: {
-                                value: 8,
-                                message:
-                                    "Password should be at least 8 character long",
-                            },
-                            required: {
-                                value: true,
-                                message: "Password is required",
-                            },
-                        })}
-                    />
-                </div>
-                <Button type="submit">Login</Button>
-            </form>
-            {errors && <ErrorCmp value={errors} />}
         </div>
     );
 }

@@ -4,11 +4,11 @@ import type { LoginUserData } from "../../types/user.types";
 
 export const loginUser = createAsyncThunk(
     "auth/login",
-    async (credentials: LoginUserData, thunkAPI) => {
+    async (credentials: LoginUserData) => {
         try {
             authservice.login(credentials);
         } catch (error) {
-            return thunkAPI.rejectWithValue(error.response.data);
+            // return thunkAPI.rejectWithValue(error.response.data);
         }
     },
 );
