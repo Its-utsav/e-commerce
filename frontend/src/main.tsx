@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import {
@@ -9,22 +9,19 @@ import {
 } from "react-router";
 import App from "./App.tsx";
 import "./index.css";
-import {
-    Cart,
-    Home,
-    Login,
-    NotFound,
-    OrderHistory,
-    Product,
-    Profile,
-    SignUp,
-} from "./pages/index.ts";
+import { NotFound, Profile } from "./pages/index.ts";
 import Auth from "./routing/Auth.tsx";
 import Public from "./routing/Public.tsx";
 import store from "./store/store.ts";
-import Order from "./pages/Order.tsx";
+import Loading from "./components/Loading.tsx";
 
-// const Home = lazy(() => import("./pages/Home.tsx"));
+const Home = lazy(() => import("./pages/Home.tsx"));
+const Login = lazy(() => import("./pages/Login.tsx"));
+const SignUp = lazy(() => import("./pages/SignUp.tsx"));
+const Product = lazy(() => import("./pages/Product.tsx"));
+const OrderHistory = lazy(() => import("./pages/OrderHistory.tsx"));
+const Cart = lazy(() => import("./pages/Cart.tsx"));
+const Order = lazy(() => import("./pages/Order.tsx"));
 
 // const router = createBrowserRouter([
 //   {
@@ -41,33 +38,82 @@ import Order from "./pages/Order.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
-        <>
-            <Route path="/" element={<App />}>
-                {/* Base App setup header , footer and outlet */}
-                <Route path="*" element={<NotFound />} /> {/* Not Found page */}
-                <Route path="" element={<Home />} />
-                <Route element={<Public />}>
-                    {/*Routes that are avaiable for all users*/}
-                    <Route path="login" element={<Login />} />{" "}
-                    {/*Page for Login*/}
-                    <Route path="signup" element={<SignUp />} />{" "}
-                    {/*Page for singup*/}
-                </Route>
-                <Route element={<Auth />}>
-                    <Route path="orders">
-                        <Route index element={<OrderHistory />} />
-                        <Route path=":orderId" element={<Order />} />
-                    </Route>
-                    <Route path="cart" element={<Cart />} />
-                    <Route path="profile" element={<Profile />} />
-                </Route>
-                <Route path="products/:productId" element={<Product />} />
+        <Route path="/" element={<App />}>
+            <Route
+                path=""
+                element={
+                    <Suspense fallback={<Loading />}>
+                        <Home />
+                    </Suspense>
+                }
+            />
+            <Route element={<Public />}>
+                <Route
+                    path="login"
+                    element={
+                        <Suspense fallback={<Loading />}>
+                            <Login />
+                        </Suspense>
+                    }
+                />
+                <Route
+                    path="signup"
+                    element={
+                        <Suspense fallback={<Loading />}>
+                            <SignUp />
+                        </Suspense>
+                    }
+                />
             </Route>
-        </>,
+            <Route element={<Auth />}>
+                <Route path="orders">
+                    <Route
+                        index
+                        element={
+                            <Suspense fallback={<Loading />}>
+                                <OrderHistory />
+                            </Suspense>
+                        }
+                    />
+                    <Route
+                        path=":orderId"
+                        element={
+                            <Suspense fallback={<Loading />}>
+                                <Order />
+                            </Suspense>
+                        }
+                    />
+                </Route>
+                <Route
+                    path="cart"
+                    element={
+                        <Suspense fallback={<Loading />}>
+                            <Cart />
+                        </Suspense>
+                    }
+                />
+                <Route
+                    path="profile"
+                    element={
+                        <Suspense fallback={<Loading />}>
+                            <Profile />
+                        </Suspense>
+                    }
+                />
+            </Route>
+            <Route
+                path="products/:productId"
+                element={
+                    <Suspense fallback={<Loading />}>
+                        <Product />
+                    </Suspense>
+                }
+            />
+            <Route path="*" element={<NotFound />} />
+        </Route>,
     ),
 );
-const r = router.routes[0].children?.map((r) => r.path);
-console.log(r);
+
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <Provider store={store}>

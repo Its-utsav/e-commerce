@@ -15,7 +15,7 @@ export default function Cart() {
             .catch((e) => {
                 setErrors(e.message);
             });
-    }, [cart]);
+    }, []);
 
     if (errors) {
         return (

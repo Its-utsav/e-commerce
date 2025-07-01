@@ -8,18 +8,24 @@ export default function Price(props: Props) {
     const { finalPrice, originalPrice, discountInPrice, discountInPercentage } =
         props;
     return (
-        <p>
+        <div>
             {finalPrice !== originalPrice ? (
                 <>
-                    {finalPrice}
-                    <span className="line-through">{originalPrice}</span>{" "}
-                    <span>
-                        Discount {discountInPrice} % {discountInPercentage}
-                    </span>
+                    <span className="text-primary">₹ {finalPrice}</span>{" "}
+                    <span className="text-slate-50 line-through">
+                        ₹{originalPrice}
+                    </span>{" "}
+                    <p>
+                        Discount
+                        <span className="text-accent">
+                            {" "}
+                            ₹ {discountInPrice} % {discountInPercentage}
+                        </span>
+                    </p>
                 </>
             ) : (
                 <span>{finalPrice}</span>
             )}
-        </p>
+        </div>
     );
 }

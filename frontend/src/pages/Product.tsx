@@ -30,12 +30,12 @@ export default function Product() {
         return <ErrorCmp value={error} />;
     }
     return (
-        <div>
+        <>
             {loading ? (
                 <Loading />
             ) : (
                 product && <ProductComponent product={product} />
             )}
-        </div>
+        </>
     );
 }
